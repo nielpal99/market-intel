@@ -13,7 +13,9 @@ export function Candlestick({ data }: { data: any }) {
       chart = createChart(ref.current!, { width: ref.current!.clientWidth, height: 300, layout: { background: { color: "#111827" }, textColor: "#d1d5db" } });
       const series = chart.addSeries(CandlestickSeries);
       const rows = data.ohlc.map((r: any) => ({
-        time: new Date(r.minute).toISOString().slice(0, 19),
+        // ClickHouse returns "YYYY-MM-DD HH:MM:SS" (UTC, no zone marker);
+        // lightweight-charts wants unix seconds for intraday data.
+        time: Math.floor(new Date(String(r.minute).replace(" ", "T") + "Z").getTime() / 1000),
         open: Number(r.open),
         high: Number(r.high),
         low: Number(r.low),

@@ -35,6 +35,7 @@ CREATE TABLE hitl_approvals (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES users(id),
     chat_id TEXT NOT NULL,
+    tool_call_id TEXT,
     tool_name TEXT NOT NULL,
     tool_input JSONB NOT NULL,
     status TEXT NOT NULL DEFAULT 'pending',

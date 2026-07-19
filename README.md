@@ -7,7 +7,7 @@ A chat agent for live crypto markets where every answer is a rendered visual com
 ## Stack
 
 - **Next.js** frontend (`src/app`, `src/components`)
-- **Trigger.dev v3** tasks (`src/trigger`)
+- **Trigger.dev v4.5** tasks (`src/trigger`)
   - `chat.agent("market-intel")` orchestrates `streamText` + tools
   - `ingest-trades-ws`, `ingest-book-ws`, `ingestion-watchdog`, `detect-events`, `alert-fanout`
 - **ClickHouse** as primary analytics/OLAP store (`db/clickhouse_schema.sql`)
@@ -33,8 +33,8 @@ A chat agent for live crypto markets where every answer is a rendered visual com
 | `market-intel` | `src/trigger/market-intel.ts` | `chat.agent()` with all query/render/OLTP tools |
 | `ingest-trades-ws` | `src/trigger/ingestion.ts` | Coinbase + Kraken trade WebSocket ingestion |
 | `ingest-book-ws` | `src/trigger/ingestion.ts` | Orderbook WebSocket ingestion |
-| `ingestion-watchdog` | `src/trigger/ingestion.ts` | Respawns dead ingestion tasks |
-| `detect-events` | `src/trigger/ingestion.ts` | Finds volatility/spread/volume anomalies |
+| `ingestion-watchdog` | `src/trigger/ingestion.ts` | Cron (2 min): re-triggers ingestion when heartbeats go stale |
+| `detect-events` | `src/trigger/ingestion.ts` | Cron (1 min): volatility/volume anomalies → `events` + fanout |
 | `alert-fanout` | `src/trigger/ingestion.ts` | Matches Postgres subscriptions → HITL approvals |
 
 ## OLTP + OLAP flow
@@ -48,9 +48,12 @@ A chat agent for live crypto markets where every answer is a rendered visual com
 ## Frontend
 
 `useChat` from `@ai-sdk/react` + `useTriggerChatTransport` from `@trigger.dev/sdk/chat/react`.
+Server routes: `/api/chat/token` mints the transport access token; `/api/chat` is the
+`chat.headStart` warm first-turn handler.
 Messages are rendered by `part.type`:
 - `text` → caption
 - `tool-render_*` → typed widget component
+- `tool-set_alert` in `approval-requested` state → approve/deny HITL buttons
 
 ## License
 

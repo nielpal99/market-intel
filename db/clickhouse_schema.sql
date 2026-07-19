@@ -46,6 +46,15 @@ INNER JOIN book_snapshots b
     ON a.symbol = b.symbol AND a.exchange != b.exchange
     AND abs(a.timestamp - b.timestamp) < 2;
 
+CREATE TABLE ingest_heartbeats (
+    task String,
+    exchange String,
+    flushed_rows UInt32,
+    flushed_at DateTime64(3)
+) ENGINE = MergeTree
+ORDER BY (task, flushed_at)
+TTL toDateTime(flushed_at) + INTERVAL 3 DAY;
+
 CREATE TABLE events (
     symbol String,
     event_type Enum8('volatility_spike'=1,'spread_anomaly'=2,'volume_spike'=3),

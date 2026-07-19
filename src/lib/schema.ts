@@ -36,6 +36,7 @@ export const hitlApprovals = pgTable("hitl_approvals", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id").references(() => users.id).notNull(),
   chatId: text("chat_id").notNull(),
+  toolCallId: text("tool_call_id"),
   toolName: text("tool_name").notNull(),
   toolInput: jsonb("tool_input").notNull(),
   status: text("status").notNull().default("pending"),
