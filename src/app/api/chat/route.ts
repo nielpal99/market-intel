@@ -1,6 +1,6 @@
 import { chat } from "@trigger.dev/sdk/chat-server";
 import { streamText } from "ai";
-import { SYSTEM_PROMPT, model, buildMarketIntelTools } from "@/lib/agent-tools";
+import { systemPrompt, model, buildMarketIntelTools } from "@/lib/agent-tools";
 
 // Warm first-turn handler: streams step 1 from this route while the
 // agent run boots, then hands over. Paired with the browser transport's
@@ -11,6 +11,6 @@ export const POST = chat.headStart({
     streamText({
       ...helper.toStreamTextOptions({ tools: buildMarketIntelTools(helper.session.chatId) }),
       model,
-      system: SYSTEM_PROMPT,
+      system: systemPrompt(),
     }),
 });
