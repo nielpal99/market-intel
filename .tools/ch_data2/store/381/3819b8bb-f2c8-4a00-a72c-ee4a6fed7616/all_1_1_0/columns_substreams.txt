@@ -1,0 +1,18 @@
+columns substreams version: 1
+7 columns:
+2 substreams for column `exchange`:
+	exchange.size
+	exchange
+2 substreams for column `symbol`:
+	symbol.size
+	symbol
+1 substreams for column `timestamp`:
+	timestamp
+1 substreams for column `best_bid`:
+	best_bid
+1 substreams for column `best_ask`:
+	best_ask
+1 substreams for column `bid_size`:
+	bid_size
+1 substreams for column `ask_size`:
+	ask_size

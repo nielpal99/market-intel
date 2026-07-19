@@ -1,0 +1,19 @@
+columns substreams version: 1
+7 columns:
+2 substreams for column `exchange`:
+	exchange.size
+	exchange
+2 substreams for column `symbol`:
+	symbol.size
+	symbol
+2 substreams for column `trade_id`:
+	trade_id.size
+	trade_id
+1 substreams for column `price`:
+	price
+1 substreams for column `size`:
+	size
+1 substreams for column `side`:
+	side
+1 substreams for column `timestamp`:
+	timestamp

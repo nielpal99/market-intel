@@ -1,0 +1,9 @@
+columns format version: 1
+7 columns:
+`exchange` String
+`symbol` String
+`timestamp` DateTime64(3)
+`best_bid` Float64
+`best_ask` Float64
+`bid_size` Float64
+`ask_size` Float64

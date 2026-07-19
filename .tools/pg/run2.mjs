@@ -1,0 +1,10 @@
+import { PGlite } from "@electric-sql/pglite";
+const pg = new PGlite("./pgdata");
+await pg.exec("INSERT INTO users (email) VALUES ('test@example.com')");
+await pg.exec("INSERT INTO watchlists (user_id, symbol) SELECT id, 'BTC-USD' FROM users WHERE email='test@example.com'");
+await pg.exec("INSERT INTO alert_subscriptions (user_id, symbol, event_type, min_severity) SELECT id, 'BTC-USD', 'volatility_spike', 0.5 FROM users WHERE email='test@example.com'");
+const { rows: u } = await pg.query("SELECT * FROM users");
+const { rows: w } = await pg.query("SELECT * FROM watchlists");
+const { rows: a } = await pg.query("SELECT * FROM alert_subscriptions");
+console.log(JSON.stringify({ users: u, watchlists: w, alerts: a }, null, 2));
+await pg.close();

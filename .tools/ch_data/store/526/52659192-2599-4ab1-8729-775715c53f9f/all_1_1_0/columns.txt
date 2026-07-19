@@ -1,0 +1,9 @@
+columns format version: 1
+7 columns:
+`exchange` String
+`symbol` String
+`trade_id` String
+`price` Float64
+`size` Float64
+`side` Enum8('buy' = 1, 'sell' = 2)
+`timestamp` DateTime64(3)

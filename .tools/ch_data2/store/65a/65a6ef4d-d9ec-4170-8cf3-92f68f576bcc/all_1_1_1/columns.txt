@@ -1,0 +1,10 @@
+columns format version: 1
+8 columns:
+`symbol` String
+`exchange` String
+`minute` DateTime
+`open` AggregateFunction(argMin, Float64, DateTime64(3))
+`high` AggregateFunction(max, Float64)
+`low` AggregateFunction(min, Float64)
+`close` AggregateFunction(argMax, Float64, DateTime64(3))
+`volume` AggregateFunction(sum, Float64)

@@ -1,0 +1,20 @@
+columns substreams version: 1
+8 columns:
+2 substreams for column `symbol`:
+	symbol.size
+	symbol
+2 substreams for column `exchange`:
+	exchange.size
+	exchange
+1 substreams for column `minute`:
+	minute
+1 substreams for column `open`:
+	open
+1 substreams for column `high`:
+	high
+1 substreams for column `low`:
+	low
+1 substreams for column `close`:
+	close
+1 substreams for column `volume`:
+	volume

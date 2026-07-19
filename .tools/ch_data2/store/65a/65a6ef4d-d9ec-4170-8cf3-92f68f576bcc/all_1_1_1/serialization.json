@@ -1,0 +1,1 @@
+{"columns":[{"kind":"Default","name":"exchange","num_defaults":0,"num_rows":12},{"kind":"Default","name":"minute","num_defaults":0,"num_rows":12},{"kind":"Default","name":"symbol","num_defaults":0,"num_rows":12}],"propagate_types_serialization_versions_to_nested_types":true,"types_serialization_versions":{"string":1},"version":1}
