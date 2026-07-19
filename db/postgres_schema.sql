@@ -4,6 +4,12 @@ CREATE TABLE users (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Demo user for single-tenant runs; identity is injected server-side
+-- (DEMO_USER_ID in src/lib/agent-tools.ts), never supplied by the model.
+INSERT INTO users (id, email) VALUES
+    ('00000000-0000-0000-0000-000000000001', 'demo@market-intel.local')
+    ON CONFLICT (id) DO NOTHING;
+
 CREATE TABLE watchlists (
     user_id UUID REFERENCES users(id),
     symbol TEXT NOT NULL,
@@ -35,7 +41,7 @@ CREATE TABLE hitl_approvals (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES users(id),
     chat_id TEXT NOT NULL,
-    tool_call_id TEXT,
+    tool_call_id TEXT UNIQUE,
     tool_name TEXT NOT NULL,
     tool_input JSONB NOT NULL,
     status TEXT NOT NULL DEFAULT 'pending',

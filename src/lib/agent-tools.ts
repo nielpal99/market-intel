@@ -11,6 +11,10 @@ import { savedInvestigations, alertSubscriptions, hitlApprovals } from "@/lib/sc
 //   export const model = anthropic("claude-sonnet-4-5");
 export const model = openai("gpt-5.1");
 
+// Identity comes from the server session, never from the LLM. This demo user
+// is seeded by db/postgres_schema.sql; a real app would resolve it from auth.
+export const DEMO_USER_ID = "00000000-0000-0000-0000-000000000001";
+
 const SYMBOLS = z.enum(["BTC-USD", "ETH-USD", "SOL-USD"]);
 
 // ClickHouse DateTime64 query params parse most reliably as "YYYY-MM-DD HH:MM:SS.mmm"
@@ -74,9 +78,10 @@ If a query returns no rows, retry once with a shorter, more recent window before
 Framing must be structural, not directive. You are not a financial advisor.`;
 }
 
-// chatId comes from the chat.agent per-turn tools factory (or the headStart
-// session) so the OLTP tools can record which conversation they acted in.
-export function buildMarketIntelTools(chatId: string) {
+// chatId and userId come from the server (per-turn tools factory or headStart
+// session), never from the model — the OLTP tools record which conversation
+// and which user they acted for without trusting LLM-supplied identity.
+export function buildMarketIntelTools(chatId: string, userId: string = DEMO_USER_ID) {
   const query_recent_events = tool({
     description: "Fetch recent anomaly events from ClickHouse.",
     inputSchema: z.object({ symbol: SYMBOLS, limit: z.number().max(50).default(10) }),
@@ -203,14 +208,13 @@ export function buildMarketIntelTools(chatId: string) {
   const save_investigation = tool({
     description: "Save the current widget snapshot to Postgres.",
     inputSchema: z.object({
-      user_id: z.string().uuid(),
       turn_index: z.number().int(),
       question: z.string(),
       widget_snapshot: z.record(z.unknown()),
     }),
     execute: async (input) => {
       await db.insert(savedInvestigations).values({
-        userId: input.user_id,
+        userId,
         chatId,
         turnIndex: input.turn_index,
         question: input.question,
@@ -224,27 +228,30 @@ export function buildMarketIntelTools(chatId: string) {
     description:
       "Create an alert subscription in Postgres. Requires explicit user approval before it executes.",
     inputSchema: z.object({
-      user_id: z.string().uuid(),
       symbol: SYMBOLS,
       event_type: z.enum(["volatility_spike", "spread_anomaly", "volume_spike"]),
       min_severity: z.number().min(0),
     }),
     // Gate: record the pending request, then require frontend approval.
     // The AI SDK loop will not run `execute` until the user approves.
+    // Idempotent on tool_call_id so a re-evaluated predicate can't duplicate rows.
     needsApproval: async (input, { toolCallId }) => {
-      await db.insert(hitlApprovals).values({
-        userId: input.user_id,
-        chatId,
-        toolCallId,
-        toolName: "set_alert",
-        toolInput: input,
-        status: "pending",
-      });
+      await db
+        .insert(hitlApprovals)
+        .values({
+          userId,
+          chatId,
+          toolCallId,
+          toolName: "set_alert",
+          toolInput: input,
+          status: "pending",
+        })
+        .onConflictDoNothing({ target: hitlApprovals.toolCallId });
       return true;
     },
     execute: async (input, { toolCallId }) => {
       await db.insert(alertSubscriptions).values({
-        userId: input.user_id,
+        userId,
         symbol: input.symbol,
         eventType: input.event_type,
         minSeverity: input.min_severity,
