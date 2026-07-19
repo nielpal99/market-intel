@@ -1,11 +1,15 @@
 import { tool } from "ai";
+import { openai } from "@ai-sdk/openai";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { chQuery } from "@/lib/clickhouse";
 import { db } from "@/lib/postgres";
 import { savedInvestigations, alertSubscriptions, hitlApprovals } from "@/lib/schema";
 
-export const MODEL_ID = "claude-sonnet-4-5";
+// Single source of truth for the agent's model. To switch back to Anthropic:
+//   import { anthropic } from "@ai-sdk/anthropic";
+//   export const model = anthropic("claude-sonnet-4-5");
+export const model = openai("gpt-5.1");
 
 const SYMBOLS = z.enum(["BTC-USD", "ETH-USD", "SOL-USD"]);
 
