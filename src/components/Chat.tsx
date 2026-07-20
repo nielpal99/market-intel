@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { useTriggerChatTransport } from "@trigger.dev/sdk/chat/react";
 import { lastAssistantMessageIsCompleteWithApprovalResponses } from "ai";
@@ -28,11 +28,22 @@ const RENDER_COMPONENTS: Record<string, (props: DrillDownProps) => JSX.Element> 
 
 const WATCHED = ["BTC-USD", "ETH-USD", "SOL-USD"];
 
+function formatTickerPrice(price?: number) {
+  if (price === undefined || !Number.isFinite(price)) return "—";
+  return price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
 export function Chat() {
   const [chatId] = useState(() => crypto.randomUUID());
   const [input, setInput] = useState("");
   const [pendingApprovals, setPendingApprovals] = useState<HITLApproval[]>([]);
+  const [priceMoves, setPriceMoves] = useState<Record<string, "up" | "down" | "flat">>({});
+  const lastPrices = useRef<Map<string, number>>(new Map());
   const throughput = useThroughput();
+  const pricesBySymbol = useMemo(
+    () => new Map(throughput.prices.map((price) => [price.symbol, price])),
+    [throughput.prices]
+  );
 
   const transport = useTriggerChatTransport({
     task: "market-intel",
@@ -51,6 +62,21 @@ export function Chat() {
   });
 
   const busy = status === "submitted" || status === "streaming";
+
+  useEffect(() => {
+    const nextMoves: Record<string, "up" | "down" | "flat"> = {};
+    for (const price of throughput.prices) {
+      const previous = lastPrices.current.get(price.symbol);
+      if (previous !== undefined && previous !== price.price) {
+        nextMoves[price.symbol] = price.price > previous ? "up" : "down";
+      }
+      lastPrices.current.set(price.symbol, price.price);
+    }
+    if (Object.keys(nextMoves).length === 0) return;
+    setPriceMoves(nextMoves);
+    const clear = setTimeout(() => setPriceMoves({}), 900);
+    return () => clearTimeout(clear);
+  }, [throughput.prices]);
 
   // Poll the in-process route (real Neon DB) for run-less alert-fanout
   // notifications. In-session set_alert approvals carry a tool_call_id and are
@@ -100,9 +126,16 @@ export function Chat() {
       <header className="status-strip">
         <div className="wordmark">MARKET<b>INTEL</b></div>
         <div className="watched">
-          {WATCHED.map((s) => (
-            <span key={s}>{s}</span>
-          ))}
+          {WATCHED.map((s) => {
+            const latest = pricesBySymbol.get(s);
+            const move = priceMoves[s] ?? "flat";
+            return (
+              <span key={s} className={`ticker ${move}`} title={latest?.timestamp ? `${s} ${latest.timestamp}` : s}>
+                <span className="ticker-symbol">{s.replace("-USD", "")}</span>
+                <span className="ticker-price">{formatTickerPrice(latest?.price)}</span>
+              </span>
+            );
+          })}
         </div>
         <div className={`beacon ${throughput.live ? "on" : "off"}`}>
           <span className="dot" />

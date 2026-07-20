@@ -21,7 +21,9 @@ function toIso(seconds: number) {
 export function Candlestick({ data, onDrillDown }: { data: any; onDrillDown?: (message: string) => void }) {
   const ref = useRef<HTMLDivElement>(null);
   const pointerStart = useRef<number | null>(null);
+  const drillTimeout = useRef<NodeJS.Timeout | null>(null);
   const [selection, setSelection] = useState<{ left: number; width: number } | null>(null);
+  const [drillPending, setDrillPending] = useState(false);
 
   const rows = useMemo<CandlestickPoint[]>(
     () =>
@@ -71,6 +73,12 @@ export function Candlestick({ data, onDrillDown }: { data: any; onDrillDown?: (m
     return () => chart?.remove();
   }, [rows]);
 
+  useEffect(() => {
+    return () => {
+      if (drillTimeout.current) clearTimeout(drillTimeout.current);
+    };
+  }, []);
+
   const timeAtClientX = (clientX: number) => {
     if (!ref.current || !timeBounds) return null;
     const rect = ref.current.getBoundingClientRect();
@@ -86,12 +94,16 @@ export function Candlestick({ data, onDrillDown }: { data: any; onDrillDown?: (m
     const distance = Math.abs(endX - startX);
     const from = distance < 8 ? Math.max(timeBounds.min, start - 5 * 60) : Math.min(start, end);
     const to = distance < 8 ? Math.min(timeBounds.max, start + 5 * 60) : Math.max(start, end);
+    setDrillPending(true);
+    if (drillTimeout.current) clearTimeout(drillTimeout.current);
+    drillTimeout.current = setTimeout(() => setDrillPending(false), 1400);
     onDrillDown(`show me ${data?.input?.symbol ?? "this symbol"} between ${toIso(from)} and ${toIso(to)}`);
   };
 
   return (
     <div>
       <div
+        className={`chart-drill-surface ${drillPending ? "is-drilling" : ""}`}
         style={{ position: "relative", width: "100%", height: 300, cursor: onDrillDown ? "crosshair" : "default" }}
         onPointerDown={(event) => {
           pointerStart.current = event.clientX;
@@ -118,19 +130,18 @@ export function Candlestick({ data, onDrillDown }: { data: any; onDrillDown?: (m
         {selection && (
           <div
             aria-hidden="true"
+            className="range-selection"
             style={{
               position: "absolute",
               top: 0,
               bottom: 0,
               left: selection.left,
               width: Math.max(1, selection.width),
-              background: "rgba(116, 199, 214, 0.18)",
-              borderLeft: "1px solid var(--ice)",
-              borderRight: "1px solid var(--ice)",
               pointerEvents: "none",
             }}
           />
         )}
+        {drillPending && <div aria-hidden="true" className="drill-ack" />}
       </div>
       {data?.input?.caption && <p className="readout-caption">{data.input.caption}</p>}
     </div>
