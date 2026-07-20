@@ -6,3 +6,10 @@ next-env.d.ts
 tsconfig.tsbuildinfo
 .trigger/
 .claude/
+
+# Orphaned PGlite store from the removed Track D server (already covered by
+# .tools/ above; kept explicit since these files were previously tracked)
+.tools/pg/pgdata/
+
+# Trigger.dev dev-worker version artifacts written to the repo root (e.g. 20260719.2)
+/20[0-9][0-9][0-9][0-9][0-9][0-9].[0-9]*
