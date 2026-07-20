@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { VerdictCard } from "./VerdictCard";
 
 type CandlestickPoint = {
   time: number;
@@ -19,6 +20,11 @@ function toIso(seconds: number) {
 }
 
 export function Candlestick({ data, onDrillDown }: { data: any; onDrillDown?: (message: string) => void }) {
+  if (data?.__renderAs === "verdict_card" || data?.verdict) return <VerdictCard data={data} />;
+  return <CandlestickChart data={data} onDrillDown={onDrillDown} />;
+}
+
+function CandlestickChart({ data, onDrillDown }: { data: any; onDrillDown?: (message: string) => void }) {
   const ref = useRef<HTMLDivElement>(null);
   const pointerStart = useRef<number | null>(null);
   const drillTimeout = useRef<NodeJS.Timeout | null>(null);

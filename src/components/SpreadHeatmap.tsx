@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { VerdictCard } from "./VerdictCard";
 
 function toIso(timestamp: unknown) {
   const value = String(timestamp);
@@ -9,6 +10,11 @@ function toIso(timestamp: unknown) {
 }
 
 export function SpreadHeatmap({ data, onDrillDown }: { data: any; onDrillDown?: (message: string) => void }) {
+  if (data?.__renderAs === "verdict_card" || data?.verdict) return <VerdictCard data={data} />;
+  return <SpreadHeatmapGrid data={data} onDrillDown={onDrillDown} />;
+}
+
+function SpreadHeatmapGrid({ data, onDrillDown }: { data: any; onDrillDown?: (message: string) => void }) {
   const rows = data?.rows || [];
   const [pendingCell, setPendingCell] = useState<number | null>(null);
   const pendingTimeout = useRef<NodeJS.Timeout | null>(null);

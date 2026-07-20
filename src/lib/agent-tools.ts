@@ -81,6 +81,16 @@ type CorrelationRow = {
   close: number;
 };
 
+function noDataVerdict(verdict: string, caption: string, stats: Array<{ label: string; value: string }> = []) {
+  return {
+    __renderAs: "verdict_card",
+    verdict,
+    confidence: 0.99,
+    stats,
+    caption,
+  };
+}
+
 function pearson(xs: number[], ys: number[]): number | null {
   const n = Math.min(xs.length, ys.length);
   if (n < 3) return null;
@@ -198,7 +208,11 @@ Process:
 2. Reason about the results.
 3. Emit exactly one render_* tool call as the final answer.
 
-If a query returns no rows, retry once with a shorter, more recent window before concluding data is unavailable — ingestion may have started recently.
+If a query returns no rows, retry once with a shorter, more recent window before concluding data is unavailable — ingestion may have started recently. If the retry also returns no rows, do not render the underlying chart or network; render_verdict_card with an honest no-data verdict.
+
+When the user asks to save an investigation, call save_investigation even if you must create a minimal widget_snapshot from the current request context, then render_verdict_card confirming the save. Do not ask for prose clarification and do not render the underlying investigation widget, chart, heatmap, or network in the same response.
+
+When the user asks to create or set an alert, call set_alert directly. Do not ask for approval yourself with render_verdict_card first; set_alert.needsApproval is the approval mechanism. After set_alert resolves, render_verdict_card confirming the alert status only.
 
 For user requests that ask what trades produced a spread reading, call query_trades_around for the supplied symbol and timestamp before rendering a verdict card.
 
@@ -289,6 +303,16 @@ export function buildMarketIntelTools(chatId: string, userId: string = DEMO_USER
     }),
     execute: async (input) => {
       const ohlc = await fetchPriceSeries(input.symbol, input.window_start, input.window_end);
+      if (ohlc.length === 0) {
+        return noDataVerdict(
+          `No OHLC data is available for ${input.symbol} in the requested window.`,
+          "No chart rendered because ClickHouse returned zero rows.",
+          [
+            { label: "Symbol", value: input.symbol },
+            { label: "Rows", value: "0" },
+          ]
+        );
+      }
       return { input, ohlc };
     },
   });
@@ -302,6 +326,16 @@ export function buildMarketIntelTools(chatId: string, userId: string = DEMO_USER
     }),
     execute: async (input) => {
       const rows = await fetchSpreadSeries(input.symbol, input.minutes);
+      if (rows.length === 0) {
+        return noDataVerdict(
+          `No cross-exchange spread data is available for ${input.symbol} in the requested window.`,
+          "No heatmap rendered because ClickHouse returned zero rows.",
+          [
+            { label: "Symbol", value: input.symbol },
+            { label: "Rows", value: "0" },
+          ]
+        );
+      }
       return { input, rows };
     },
   });
@@ -331,6 +365,16 @@ export function buildMarketIntelTools(chatId: string, userId: string = DEMO_USER
       const lookbackMinutes = Math.min(Math.max(Math.round(input.hours * 60), 60), 1440);
       const rollingSamples = 60;
       const rows = await fetchCorrelations(input.symbols, lookbackMinutes) as CorrelationRow[];
+      if (rows.length === 0) {
+        return noDataVerdict(
+          `No close series are available for ${input.symbols.join(", ")} in the requested window.`,
+          "No correlation network rendered because ClickHouse returned zero rows.",
+          [
+            { label: "Symbols", value: input.symbols.join(", ") },
+            { label: "Rows", value: "0" },
+          ]
+        );
+      }
       return { input: { ...input, lookbackMinutes, rollingSamples }, ...computeCorrelationNetwork(rows, input.symbols, rollingSamples) };
     },
   });

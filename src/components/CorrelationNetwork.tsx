@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { VerdictCard } from "./VerdictCard";
 
 function sparklinePoints(series: Array<{ correlation: number }>, width: number, height: number, offsetX = 0, offsetY = 0) {
   return series
@@ -26,6 +27,11 @@ function Sparkline({ series }: { series: Array<{ minute: string; correlation: nu
 }
 
 export function CorrelationNetwork({ data }: { data: any }) {
+  if (data?.__renderAs === "verdict_card" || data?.verdict) return <VerdictCard data={data} />;
+  return <CorrelationNetworkGraph data={data} />;
+}
+
+function CorrelationNetworkGraph({ data }: { data: any }) {
   const rows = data?.rows || [];
   const symbols = (data?.symbols?.length ? data.symbols : Array.from(new Set(rows.map((r: any) => r.symbol)))) as string[];
   const correlations = data?.correlations || [];

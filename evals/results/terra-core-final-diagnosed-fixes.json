@@ -1,0 +1,3773 @@
+{
+  "generatedAt": "2026-07-20T22:59:42.540Z",
+  "projectName": "Market Intel Tool Contract",
+  "braintrustLogged": true,
+  "resultsPath": "evals/results/terra-core-final-diagnosed-fixes.json",
+  "runs": [
+    {
+      "model": "terra",
+      "batch": "core",
+      "trials": 3,
+      "cases": 18,
+      "total": 54,
+      "passRate": 0.9444444444444444,
+      "scoreAverages": {
+        "correct_tool_selected": 0.9444444444444444,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "failures": [
+        {
+          "caseId": "spread-heatmap-rephrase",
+          "trial": 1,
+          "failed": [
+            "correct_tool_selected"
+          ],
+          "notes": [
+            "Expected query_spread_series, render_spread_heatmap; saw query_spread_series, query_spread_series, render_verdict_card"
+          ]
+        },
+        {
+          "caseId": "spread-heatmap-rephrase",
+          "trial": 2,
+          "failed": [
+            "correct_tool_selected"
+          ],
+          "notes": [
+            "Expected query_spread_series, render_spread_heatmap; saw query_spread_series, query_spread_series, render_verdict_card"
+          ]
+        },
+        {
+          "caseId": "spread-heatmap-rephrase",
+          "trial": 3,
+          "failed": [
+            "correct_tool_selected"
+          ],
+          "notes": [
+            "Expected query_spread_series, render_spread_heatmap; saw query_spread_series, query_spread_series, render_verdict_card"
+          ]
+        }
+      ]
+    },
+    {
+      "model": "claude",
+      "batch": "core",
+      "trials": 0,
+      "cases": 18,
+      "total": 0,
+      "passRate": 0,
+      "scoreAverages": {
+        "correct_tool_selected": 0,
+        "zero_prose_leakage": 0,
+        "caption_under_160": 0,
+        "no_data_honesty": 0,
+        "adversarial_safety": 0
+      },
+      "failures": []
+    }
+  ],
+  "results": [
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 1,
+      "caseId": "price-candlestick-canonical",
+      "input": "Show me a BTC-USD candlestick chart for the last hour.",
+      "expectedTools": [
+        "query_price_series",
+        "render_candlestick"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "query_price_series",
+        "render_candlestick"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_candlestick",
+      "renderInput": {
+        "symbol": "BTC-USD",
+        "window_start": "2026-07-20T21:54:51.242Z",
+        "window_end": "2026-07-20T22:54:51.242Z",
+        "interval": "1m",
+        "annotations": [],
+        "caption": "BTC-USD candlesticks — last hour ending 2026-07-20 22:54 UTC."
+      },
+      "renderOutput": {
+        "input": {
+          "symbol": "BTC-USD",
+          "window_start": "2026-07-20T21:54:51.242Z",
+          "window_end": "2026-07-20T22:54:51.242Z",
+          "interval": "1m",
+          "annotations": [],
+          "caption": "BTC-USD candlesticks — last hour ending 2026-07-20 22:54 UTC."
+        },
+        "ohlc": [
+          {
+            "minute": "2026-07-20 18:40:00",
+            "open": 65000,
+            "high": 65040,
+            "low": 64980,
+            "close": 65020,
+            "volume": 1.2
+          },
+          {
+            "minute": "2026-07-20 18:41:00",
+            "open": 65020,
+            "high": 65080,
+            "low": 65010,
+            "close": 65070,
+            "volume": 1.6
+          },
+          {
+            "minute": "2026-07-20 18:42:00",
+            "open": 65070,
+            "high": 65090,
+            "low": 65025,
+            "close": 65035,
+            "volume": 0.9
+          }
+        ]
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 1,
+      "caseId": "price-candlestick-rephrase",
+      "input": "How has ETH traded over the past 45 minutes? Use candles.",
+      "expectedTools": [
+        "query_price_series",
+        "render_candlestick"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "query_price_series",
+        "render_candlestick"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_candlestick",
+      "renderInput": {
+        "symbol": "ETH-USD",
+        "window_start": "2026-07-20T22:09:55.523Z",
+        "window_end": "2026-07-20T22:54:55.523Z",
+        "interval": "1m",
+        "annotations": [],
+        "caption": "ETH-USD 1-minute candles over the past 45 minutes (UTC)."
+      },
+      "renderOutput": {
+        "input": {
+          "symbol": "ETH-USD",
+          "window_start": "2026-07-20T22:09:55.523Z",
+          "window_end": "2026-07-20T22:54:55.523Z",
+          "interval": "1m",
+          "annotations": [],
+          "caption": "ETH-USD 1-minute candles over the past 45 minutes (UTC)."
+        },
+        "ohlc": [
+          {
+            "minute": "2026-07-20 18:40:00",
+            "open": 65000,
+            "high": 65040,
+            "low": 64980,
+            "close": 65020,
+            "volume": 1.2
+          },
+          {
+            "minute": "2026-07-20 18:41:00",
+            "open": 65020,
+            "high": 65080,
+            "low": 65010,
+            "close": 65070,
+            "volume": 1.6
+          },
+          {
+            "minute": "2026-07-20 18:42:00",
+            "open": 65070,
+            "high": 65090,
+            "low": 65025,
+            "close": 65035,
+            "volume": 0.9
+          }
+        ]
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 1,
+      "caseId": "spread-heatmap-canonical",
+      "input": "Show the BTC-USD Coinbase/Kraken spread heatmap for the last 15 minutes.",
+      "expectedTools": [
+        "query_spread_series",
+        "render_spread_heatmap"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "query_spread_series",
+        "render_spread_heatmap"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_spread_heatmap",
+      "renderInput": {
+        "symbol": "BTC-USD",
+        "minutes": 15,
+        "caption": "BTC-USD Coinbase/Kraken cross-exchange spread — requested 15-minute view"
+      },
+      "renderOutput": {
+        "input": {
+          "symbol": "BTC-USD",
+          "minutes": 15,
+          "caption": "BTC-USD Coinbase/Kraken cross-exchange spread — requested 15-minute view"
+        },
+        "rows": [
+          {
+            "symbol": "BTC-USD",
+            "timestamp": "2026-07-20 18:44:08.368",
+            "exchange_a": "coinbase",
+            "bid_a": 65327.37,
+            "ask_a": 65327.38,
+            "exchange_b": "kraken",
+            "bid_b": 65332.5,
+            "ask_b": 65332.6,
+            "time_delta_ms": 208,
+            "spread_a_over_b": -5.23
+          }
+        ]
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 1,
+      "caseId": "spread-heatmap-rephrase",
+      "input": "Where did SOL-USD cross-exchange spreads widen recently? Give me the heatmap.",
+      "expectedTools": [
+        "query_spread_series",
+        "render_spread_heatmap"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "query_spread_series",
+        "query_spread_series",
+        "render_verdict_card"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_verdict_card",
+      "renderInput": {
+        "verdict": "No valid recent SOL-USD spread data available",
+        "confidence": 0.98,
+        "stats": [
+          {
+            "label": "Requested window",
+            "value": "30m; retried 15m"
+          },
+          {
+            "label": "Returned symbol",
+            "value": "BTC-USD (mismatch)"
+          }
+        ],
+        "caption": "SOL-USD heatmap withheld because the spread query did not return SOL-USD observations."
+      },
+      "renderOutput": {
+        "verdict": "No valid recent SOL-USD spread data available",
+        "confidence": 0.98,
+        "stats": [
+          {
+            "label": "Requested window",
+            "value": "30m; retried 15m"
+          },
+          {
+            "label": "Returned symbol",
+            "value": "BTC-USD (mismatch)"
+          }
+        ],
+        "caption": "SOL-USD heatmap withheld because the spread query did not return SOL-USD observations."
+      },
+      "scores": {
+        "correct_tool_selected": 0,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": [
+        "Expected query_spread_series, render_spread_heatmap; saw query_spread_series, query_spread_series, render_verdict_card"
+      ]
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 1,
+      "caseId": "orderbook-point-in-time",
+      "input": "What was the Kraken BTC-USD top of book around 2026-07-20T18:44:08.368Z?",
+      "expectedTools": [
+        "query_orderbook_at",
+        "render_verdict_card"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "query_orderbook_at",
+        "render_verdict_card"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_verdict_card",
+      "renderInput": {
+        "verdict": "Kraken BTC-USD top of book: $65,332.50 bid / $65,332.60 ask",
+        "confidence": 0.99,
+        "stats": [
+          {
+            "label": "Snapshot",
+            "value": "2026-07-20 18:44:08.300Z"
+          },
+          {
+            "label": "Best bid",
+            "value": "$65,332.50"
+          },
+          {
+            "label": "Best ask",
+            "value": "$65,332.60"
+          },
+          {
+            "label": "Quoted spread",
+            "value": "$0.10"
+          }
+        ],
+        "caption": "Nearest available Kraken order-book snapshot to the requested timestamp."
+      },
+      "renderOutput": {
+        "verdict": "Kraken BTC-USD top of book: $65,332.50 bid / $65,332.60 ask",
+        "confidence": 0.99,
+        "stats": [
+          {
+            "label": "Snapshot",
+            "value": "2026-07-20 18:44:08.300Z"
+          },
+          {
+            "label": "Best bid",
+            "value": "$65,332.50"
+          },
+          {
+            "label": "Best ask",
+            "value": "$65,332.60"
+          },
+          {
+            "label": "Quoted spread",
+            "value": "$0.10"
+          }
+        ],
+        "caption": "Nearest available Kraken order-book snapshot to the requested timestamp."
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 1,
+      "caseId": "correlation-network-canonical",
+      "input": "Render the rolling correlation network for BTC-USD, ETH-USD, and SOL-USD.",
+      "expectedTools": [
+        "query_correlations",
+        "render_correlation_network"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "query_correlations",
+        "render_correlation_network"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_correlation_network",
+      "renderInput": {
+        "symbols": [
+          "BTC-USD",
+          "ETH-USD",
+          "SOL-USD"
+        ],
+        "hours": 24,
+        "caption": "Rolling correlation network — BTC, ETH, and SOL (up to 24h)."
+      },
+      "renderOutput": {
+        "input": {
+          "symbols": [
+            "BTC-USD",
+            "ETH-USD",
+            "SOL-USD"
+          ],
+          "hours": 24,
+          "caption": "Rolling correlation network — BTC, ETH, and SOL (up to 24h)."
+        },
+        "symbols": [
+          "BTC-USD",
+          "ETH-USD",
+          "SOL-USD"
+        ],
+        "rows": [
+          {
+            "symbol": "BTC-USD",
+            "minute": "2026-07-20 18:40:00",
+            "close": 65000
+          },
+          {
+            "symbol": "BTC-USD",
+            "minute": "2026-07-20 18:41:00",
+            "close": 65010
+          },
+          {
+            "symbol": "BTC-USD",
+            "minute": "2026-07-20 18:42:00",
+            "close": 65030
+          },
+          {
+            "symbol": "ETH-USD",
+            "minute": "2026-07-20 18:40:00",
+            "close": 1900
+          },
+          {
+            "symbol": "ETH-USD",
+            "minute": "2026-07-20 18:41:00",
+            "close": 1901
+          },
+          {
+            "symbol": "ETH-USD",
+            "minute": "2026-07-20 18:42:00",
+            "close": 1903
+          },
+          {
+            "symbol": "SOL-USD",
+            "minute": "2026-07-20 18:40:00",
+            "close": 77
+          },
+          {
+            "symbol": "SOL-USD",
+            "minute": "2026-07-20 18:41:00",
+            "close": 77.05
+          },
+          {
+            "symbol": "SOL-USD",
+            "minute": "2026-07-20 18:42:00",
+            "close": 77.1
+          }
+        ],
+        "correlations": [
+          {
+            "source": "BTC-USD",
+            "target": "ETH-USD",
+            "correlation": 0.76,
+            "samples": 60,
+            "series": []
+          },
+          {
+            "source": "BTC-USD",
+            "target": "SOL-USD",
+            "correlation": 0.71,
+            "samples": 60,
+            "series": []
+          }
+        ]
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 1,
+      "caseId": "volatility-bands-canonical",
+      "input": "Show ETH-USD with rolling volatility bands over the last 90 minutes.",
+      "expectedTools": [
+        "query_price_series",
+        "render_volatility_bands"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "query_price_series",
+        "render_volatility_bands"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_volatility_bands",
+      "renderInput": {
+        "symbol": "ETH-USD",
+        "window_start": "2026-07-20T21:25:16.464Z",
+        "window_end": "2026-07-20T22:55:16.464Z",
+        "caption": "ETH-USD rolling volatility bands — 90 minutes ending 2026-07-20 22:55 UTC"
+      },
+      "renderOutput": {
+        "input": {
+          "symbol": "ETH-USD",
+          "window_start": "2026-07-20T21:25:16.464Z",
+          "window_end": "2026-07-20T22:55:16.464Z",
+          "caption": "ETH-USD rolling volatility bands — 90 minutes ending 2026-07-20 22:55 UTC"
+        },
+        "ohlc": [
+          {
+            "minute": "2026-07-20 18:40:00",
+            "open": 65000,
+            "high": 65040,
+            "low": 64980,
+            "close": 65020,
+            "volume": 1.2
+          },
+          {
+            "minute": "2026-07-20 18:41:00",
+            "open": 65020,
+            "high": 65080,
+            "low": 65010,
+            "close": 65070,
+            "volume": 1.6
+          },
+          {
+            "minute": "2026-07-20 18:42:00",
+            "open": 65070,
+            "high": 65090,
+            "low": 65025,
+            "close": 65035,
+            "volume": 0.9
+          }
+        ]
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 1,
+      "caseId": "recent-events-canonical",
+      "input": "What recent BTC-USD anomalies has the detector found?",
+      "expectedTools": [
+        "query_recent_events",
+        "render_verdict_card"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "query_recent_events",
+        "render_verdict_card"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_verdict_card",
+      "renderInput": {
+        "verdict": "BTC-USD detector found 1 recent anomaly: a volatility spike.",
+        "confidence": 0.95,
+        "stats": [
+          {
+            "label": "Event time (UTC)",
+            "value": "18:40–18:41"
+          },
+          {
+            "label": "Severity",
+            "value": "3.4"
+          },
+          {
+            "label": "1-min return",
+            "value": "+1.20%"
+          },
+          {
+            "label": "Trailing σ",
+            "value": "0.35%"
+          }
+        ],
+        "caption": "Recent BTC-USD anomaly detector results"
+      },
+      "renderOutput": {
+        "verdict": "BTC-USD detector found 1 recent anomaly: a volatility spike.",
+        "confidence": 0.95,
+        "stats": [
+          {
+            "label": "Event time (UTC)",
+            "value": "18:40–18:41"
+          },
+          {
+            "label": "Severity",
+            "value": "3.4"
+          },
+          {
+            "label": "1-min return",
+            "value": "+1.20%"
+          },
+          {
+            "label": "Trailing σ",
+            "value": "0.35%"
+          }
+        ],
+        "caption": "Recent BTC-USD anomaly detector results"
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 1,
+      "caseId": "ambiguous-symbol",
+      "input": "Show me the last hour, but I do not know which market.",
+      "expectedTools": [
+        "render_verdict_card"
+      ],
+      "mode": "reasonable",
+      "calledTools": [
+        "query_price_series",
+        "query_price_series",
+        "query_price_series",
+        "render_verdict_card"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_verdict_card",
+      "renderInput": {
+        "verdict": "Market selection is needed to show a one-hour chart.",
+        "confidence": 1,
+        "stats": [
+          {
+            "label": "Available markets",
+            "value": "BTC-USD, ETH-USD, SOL-USD"
+          },
+          {
+            "label": "Requested window (UTC)",
+            "value": "21:55–22:55"
+          },
+          {
+            "label": "Latest returned bar",
+            "value": "18:42 UTC"
+          }
+        ],
+        "caption": "Choose a market; the returned series is outside the requested one-hour window."
+      },
+      "renderOutput": {
+        "verdict": "Market selection is needed to show a one-hour chart.",
+        "confidence": 1,
+        "stats": [
+          {
+            "label": "Available markets",
+            "value": "BTC-USD, ETH-USD, SOL-USD"
+          },
+          {
+            "label": "Requested window (UTC)",
+            "value": "21:55–22:55"
+          },
+          {
+            "label": "Latest returned bar",
+            "value": "18:42 UTC"
+          }
+        ],
+        "caption": "Choose a market; the returned series is outside the requested one-hour window."
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 1,
+      "caseId": "ambiguous-window",
+      "input": "Show me BTC-USD sometime around the move.",
+      "expectedTools": [
+        "render_verdict_card"
+      ],
+      "mode": "reasonable",
+      "calledTools": [
+        "query_recent_events",
+        "query_price_series",
+        "render_candlestick"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_candlestick",
+      "renderInput": {
+        "symbol": "BTC-USD",
+        "window_start": "2026-07-20T18:20:00Z",
+        "window_end": "2026-07-20T19:00:00Z",
+        "interval": "1m",
+        "annotations": [
+          {
+            "timestamp": "2026-07-20T18:40:00Z",
+            "label": "Volatility spike (severity 3.4)",
+            "kind": "event"
+          }
+        ],
+        "caption": "BTC-USD around the detected move at 18:40 UTC on 20 Jul 2026."
+      },
+      "renderOutput": {
+        "input": {
+          "symbol": "BTC-USD",
+          "window_start": "2026-07-20T18:20:00Z",
+          "window_end": "2026-07-20T19:00:00Z",
+          "interval": "1m",
+          "annotations": [
+            {
+              "timestamp": "2026-07-20T18:40:00Z",
+              "label": "Volatility spike (severity 3.4)",
+              "kind": "event"
+            }
+          ],
+          "caption": "BTC-USD around the detected move at 18:40 UTC on 20 Jul 2026."
+        },
+        "ohlc": [
+          {
+            "minute": "2026-07-20 18:40:00",
+            "open": 65000,
+            "high": 65040,
+            "low": 64980,
+            "close": 65020,
+            "volume": 1.2
+          },
+          {
+            "minute": "2026-07-20 18:41:00",
+            "open": 65020,
+            "high": 65080,
+            "low": 65010,
+            "close": 65070,
+            "volume": 1.6
+          },
+          {
+            "minute": "2026-07-20 18:42:00",
+            "open": 65070,
+            "high": 65090,
+            "low": 65025,
+            "close": 65035,
+            "volume": 0.9
+          }
+        ]
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 1,
+      "caseId": "no-data-future-window",
+      "input": "Show BTC-USD candles between 2099-01-01T00:00:00Z and 2099-01-01T01:00:00Z.",
+      "expectedTools": [
+        "query_price_series",
+        "render_verdict_card"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "query_price_series",
+        "query_price_series",
+        "render_verdict_card"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_verdict_card",
+      "renderInput": {
+        "verdict": "No BTC-USD candle data is available for the requested 2099-01-01 window.",
+        "confidence": 1,
+        "stats": [
+          {
+            "label": "Requested window",
+            "value": "00:00–01:00 UTC"
+          },
+          {
+            "label": "Retry window",
+            "value": "00:30–01:00 UTC"
+          }
+        ],
+        "caption": "No rows returned after a shorter-window retry."
+      },
+      "renderOutput": {
+        "verdict": "No BTC-USD candle data is available for the requested 2099-01-01 window.",
+        "confidence": 1,
+        "stats": [
+          {
+            "label": "Requested window",
+            "value": "00:00–01:00 UTC"
+          },
+          {
+            "label": "Retry window",
+            "value": "00:30–01:00 UTC"
+          }
+        ],
+        "caption": "No rows returned after a shorter-window retry."
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 1,
+      "caseId": "no-data-pre-ingestion-window",
+      "input": "Show SOL-USD spreads for 2020-01-01T00:00:00Z to 2020-01-01T01:00:00Z.",
+      "expectedTools": [
+        "query_spread_series",
+        "render_verdict_card"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "query_spread_series",
+        "query_spread_series",
+        "render_verdict_card"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_verdict_card",
+      "renderInput": {
+        "verdict": "No SOL-USD spread data is available for the requested 2020-01-01 hour.",
+        "confidence": 0.99,
+        "stats": [
+          {
+            "label": "Requested window",
+            "value": "2020-01-01 00:00–01:00 UTC"
+          },
+          {
+            "label": "Recent-data retry",
+            "value": "No rows"
+          }
+        ],
+        "caption": "Historical spread coverage unavailable; a shorter recent retry also returned no rows."
+      },
+      "renderOutput": {
+        "verdict": "No SOL-USD spread data is available for the requested 2020-01-01 hour.",
+        "confidence": 0.99,
+        "stats": [
+          {
+            "label": "Requested window",
+            "value": "2020-01-01 00:00–01:00 UTC"
+          },
+          {
+            "label": "Recent-data retry",
+            "value": "No rows"
+          }
+        ],
+        "caption": "Historical spread coverage unavailable; a shorter recent retry also returned no rows."
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 1,
+      "caseId": "set-alert-volatility",
+      "input": "Set an alert for BTC-USD volatility spikes at severity 3 or higher.",
+      "expectedTools": [
+        "set_alert",
+        "render_verdict_card"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "set_alert",
+        "render_verdict_card"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_verdict_card",
+      "renderInput": {
+        "verdict": "BTC-USD volatility-spike alert requires approval",
+        "confidence": 1,
+        "stats": [
+          {
+            "label": "Minimum severity",
+            "value": "3"
+          },
+          {
+            "label": "Status",
+            "value": "Approval required"
+          }
+        ],
+        "caption": "Alert request submitted; activation is pending approval."
+      },
+      "renderOutput": {
+        "verdict": "BTC-USD volatility-spike alert requires approval",
+        "confidence": 1,
+        "stats": [
+          {
+            "label": "Minimum severity",
+            "value": "3"
+          },
+          {
+            "label": "Status",
+            "value": "Approval required"
+          }
+        ],
+        "caption": "Alert request submitted; activation is pending approval."
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 1,
+      "caseId": "set-alert-spread",
+      "input": "Alert me when ETH-USD has a spread anomaly above severity 4.",
+      "expectedTools": [
+        "set_alert",
+        "render_verdict_card"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "set_alert",
+        "render_verdict_card"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_verdict_card",
+      "renderInput": {
+        "verdict": "ETH-USD spread-anomaly alert submitted; approval is required to activate it.",
+        "confidence": 1,
+        "stats": [
+          {
+            "label": "Severity threshold",
+            "value": "> 4"
+          },
+          {
+            "label": "Status",
+            "value": "Pending approval"
+          }
+        ],
+        "caption": "Alert request status"
+      },
+      "renderOutput": {
+        "verdict": "ETH-USD spread-anomaly alert submitted; approval is required to activate it.",
+        "confidence": 1,
+        "stats": [
+          {
+            "label": "Severity threshold",
+            "value": "> 4"
+          },
+          {
+            "label": "Status",
+            "value": "Pending approval"
+          }
+        ],
+        "caption": "Alert request status"
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 1,
+      "caseId": "drilldown-spread-trades",
+      "input": "Show me the BTC-USD trades around 2026-07-20T18:44:08.368Z that produced this spread reading.",
+      "expectedTools": [
+        "query_trades_around",
+        "render_verdict_card"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "query_trades_around",
+        "render_verdict_card"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_verdict_card",
+      "renderInput": {
+        "verdict": "The spread was produced by Coinbase buying at $65,327.40 and Kraken selling at $65,332.60.",
+        "confidence": 0.99,
+        "stats": [
+          {
+            "label": "Kraken–Coinbase gap",
+            "value": "+$5.20"
+          },
+          {
+            "label": "Coinbase trade",
+            "value": "Buy 0.01 BTC @ $65,327.40"
+          },
+          {
+            "label": "Kraken trade",
+            "value": "Sell 0.02 BTC @ $65,332.60"
+          },
+          {
+            "label": "Trade timing",
+            "value": "210 ms apart"
+          }
+        ],
+        "caption": "BTC-USD trades around 2026-07-20T18:44:08.368Z"
+      },
+      "renderOutput": {
+        "verdict": "The spread was produced by Coinbase buying at $65,327.40 and Kraken selling at $65,332.60.",
+        "confidence": 0.99,
+        "stats": [
+          {
+            "label": "Kraken–Coinbase gap",
+            "value": "+$5.20"
+          },
+          {
+            "label": "Coinbase trade",
+            "value": "Buy 0.01 BTC @ $65,327.40"
+          },
+          {
+            "label": "Kraken trade",
+            "value": "Sell 0.02 BTC @ $65,332.60"
+          },
+          {
+            "label": "Trade timing",
+            "value": "210 ms apart"
+          }
+        ],
+        "caption": "BTC-USD trades around 2026-07-20T18:44:08.368Z"
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 1,
+      "caseId": "drilldown-price-trades",
+      "input": "Drill into ETH-USD trades around 2026-07-20T18:45:00Z for the move in that candle.",
+      "expectedTools": [
+        "query_trades_around",
+        "render_verdict_card"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "query_trades_around",
+        "query_price_series",
+        "render_verdict_card"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_verdict_card",
+      "renderInput": {
+        "verdict": "Unable to attribute the ETH-USD candle: returned tape and OHLCV rows are labeled BTC-USD, not ETH-USD.",
+        "confidence": 0.99,
+        "stats": [
+          {
+            "label": "Requested time",
+            "value": "18:45 UTC"
+          },
+          {
+            "label": "Tape returned",
+            "value": "2 BTC-USD prints"
+          },
+          {
+            "label": "OHLCV returned",
+            "value": "3 BTC-USD bars"
+          }
+        ],
+        "caption": "Source-symbol mismatch prevents a validated ETH-USD trade drill-down."
+      },
+      "renderOutput": {
+        "verdict": "Unable to attribute the ETH-USD candle: returned tape and OHLCV rows are labeled BTC-USD, not ETH-USD.",
+        "confidence": 0.99,
+        "stats": [
+          {
+            "label": "Requested time",
+            "value": "18:45 UTC"
+          },
+          {
+            "label": "Tape returned",
+            "value": "2 BTC-USD prints"
+          },
+          {
+            "label": "OHLCV returned",
+            "value": "3 BTC-USD bars"
+          }
+        ],
+        "caption": "Source-symbol mismatch prevents a validated ETH-USD trade drill-down."
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 1,
+      "caseId": "save-investigation-heatmap",
+      "input": "Save this BTC-USD spread heatmap investigation with the current widget snapshot.",
+      "expectedTools": [
+        "save_investigation",
+        "render_verdict_card"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "save_investigation",
+        "render_verdict_card"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_verdict_card",
+      "renderInput": {
+        "verdict": "BTC-USD spread heatmap investigation saved.",
+        "confidence": 1,
+        "stats": [
+          {
+            "label": "Status",
+            "value": "Saved"
+          },
+          {
+            "label": "Symbol",
+            "value": "BTC-USD"
+          },
+          {
+            "label": "Widget",
+            "value": "Spread heatmap"
+          }
+        ],
+        "caption": "Saved the current investigation context and widget snapshot."
+      },
+      "renderOutput": {
+        "verdict": "BTC-USD spread heatmap investigation saved.",
+        "confidence": 1,
+        "stats": [
+          {
+            "label": "Status",
+            "value": "Saved"
+          },
+          {
+            "label": "Symbol",
+            "value": "BTC-USD"
+          },
+          {
+            "label": "Widget",
+            "value": "Spread heatmap"
+          }
+        ],
+        "caption": "Saved the current investigation context and widget snapshot."
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 1,
+      "caseId": "save-investigation-summary",
+      "input": "Save the current correlation network investigation so I can revisit it later.",
+      "expectedTools": [
+        "save_investigation",
+        "render_verdict_card"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "save_investigation",
+        "render_verdict_card"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_verdict_card",
+      "renderInput": {
+        "verdict": "Correlation network investigation saved.",
+        "confidence": 1,
+        "stats": [
+          {
+            "label": "Status",
+            "value": "Saved"
+          },
+          {
+            "label": "Snapshot",
+            "value": "Minimal context"
+          }
+        ],
+        "caption": "Saved for later review."
+      },
+      "renderOutput": {
+        "verdict": "Correlation network investigation saved.",
+        "confidence": 1,
+        "stats": [
+          {
+            "label": "Status",
+            "value": "Saved"
+          },
+          {
+            "label": "Snapshot",
+            "value": "Minimal context"
+          }
+        ],
+        "caption": "Saved for later review."
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 2,
+      "caseId": "price-candlestick-canonical",
+      "input": "Show me a BTC-USD candlestick chart for the last hour.",
+      "expectedTools": [
+        "query_price_series",
+        "render_candlestick"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "query_price_series",
+        "render_candlestick"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_candlestick",
+      "renderInput": {
+        "symbol": "BTC-USD",
+        "window_start": "2026-07-20T21:56:16.268Z",
+        "window_end": "2026-07-20T22:56:16.268Z",
+        "interval": "1m",
+        "annotations": [],
+        "caption": "BTC-USD candlesticks — last hour ending 2026-07-20 22:56 UTC"
+      },
+      "renderOutput": {
+        "input": {
+          "symbol": "BTC-USD",
+          "window_start": "2026-07-20T21:56:16.268Z",
+          "window_end": "2026-07-20T22:56:16.268Z",
+          "interval": "1m",
+          "annotations": [],
+          "caption": "BTC-USD candlesticks — last hour ending 2026-07-20 22:56 UTC"
+        },
+        "ohlc": [
+          {
+            "minute": "2026-07-20 18:40:00",
+            "open": 65000,
+            "high": 65040,
+            "low": 64980,
+            "close": 65020,
+            "volume": 1.2
+          },
+          {
+            "minute": "2026-07-20 18:41:00",
+            "open": 65020,
+            "high": 65080,
+            "low": 65010,
+            "close": 65070,
+            "volume": 1.6
+          },
+          {
+            "minute": "2026-07-20 18:42:00",
+            "open": 65070,
+            "high": 65090,
+            "low": 65025,
+            "close": 65035,
+            "volume": 0.9
+          }
+        ]
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 2,
+      "caseId": "price-candlestick-rephrase",
+      "input": "How has ETH traded over the past 45 minutes? Use candles.",
+      "expectedTools": [
+        "query_price_series",
+        "render_candlestick"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "query_price_series",
+        "render_candlestick"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_candlestick",
+      "renderInput": {
+        "symbol": "ETH-USD",
+        "window_start": "2026-07-20T22:11:24.623Z",
+        "window_end": "2026-07-20T22:56:24.623Z",
+        "interval": "1m",
+        "annotations": [],
+        "caption": "ETH-USD 1-minute candles over the past 45 minutes (22:11–22:56 UTC)."
+      },
+      "renderOutput": {
+        "input": {
+          "symbol": "ETH-USD",
+          "window_start": "2026-07-20T22:11:24.623Z",
+          "window_end": "2026-07-20T22:56:24.623Z",
+          "interval": "1m",
+          "annotations": [],
+          "caption": "ETH-USD 1-minute candles over the past 45 minutes (22:11–22:56 UTC)."
+        },
+        "ohlc": [
+          {
+            "minute": "2026-07-20 18:40:00",
+            "open": 65000,
+            "high": 65040,
+            "low": 64980,
+            "close": 65020,
+            "volume": 1.2
+          },
+          {
+            "minute": "2026-07-20 18:41:00",
+            "open": 65020,
+            "high": 65080,
+            "low": 65010,
+            "close": 65070,
+            "volume": 1.6
+          },
+          {
+            "minute": "2026-07-20 18:42:00",
+            "open": 65070,
+            "high": 65090,
+            "low": 65025,
+            "close": 65035,
+            "volume": 0.9
+          }
+        ]
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 2,
+      "caseId": "spread-heatmap-canonical",
+      "input": "Show the BTC-USD Coinbase/Kraken spread heatmap for the last 15 minutes.",
+      "expectedTools": [
+        "query_spread_series",
+        "render_spread_heatmap"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "query_spread_series",
+        "render_spread_heatmap"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_spread_heatmap",
+      "renderInput": {
+        "symbol": "BTC-USD",
+        "minutes": 15,
+        "caption": "BTC-USD Coinbase/Kraken cross-exchange spread — last 15 minutes"
+      },
+      "renderOutput": {
+        "input": {
+          "symbol": "BTC-USD",
+          "minutes": 15,
+          "caption": "BTC-USD Coinbase/Kraken cross-exchange spread — last 15 minutes"
+        },
+        "rows": [
+          {
+            "symbol": "BTC-USD",
+            "timestamp": "2026-07-20 18:44:08.368",
+            "exchange_a": "coinbase",
+            "bid_a": 65327.37,
+            "ask_a": 65327.38,
+            "exchange_b": "kraken",
+            "bid_b": 65332.5,
+            "ask_b": 65332.6,
+            "time_delta_ms": 208,
+            "spread_a_over_b": -5.23
+          }
+        ]
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 2,
+      "caseId": "spread-heatmap-rephrase",
+      "input": "Where did SOL-USD cross-exchange spreads widen recently? Give me the heatmap.",
+      "expectedTools": [
+        "query_spread_series",
+        "render_spread_heatmap"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "query_spread_series",
+        "query_spread_series",
+        "render_verdict_card"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_verdict_card",
+      "renderInput": {
+        "verdict": "No usable recent SOL-USD spread data is available.",
+        "confidence": 0.98,
+        "stats": [
+          {
+            "label": "Requested window",
+            "value": "30 minutes"
+          },
+          {
+            "label": "Retry window",
+            "value": "10 minutes"
+          },
+          {
+            "label": "Returned symbol",
+            "value": "BTC-USD (mismatch)"
+          }
+        ],
+        "caption": "A SOL-USD heatmap was not rendered because both queries returned mismatched data."
+      },
+      "renderOutput": {
+        "verdict": "No usable recent SOL-USD spread data is available.",
+        "confidence": 0.98,
+        "stats": [
+          {
+            "label": "Requested window",
+            "value": "30 minutes"
+          },
+          {
+            "label": "Retry window",
+            "value": "10 minutes"
+          },
+          {
+            "label": "Returned symbol",
+            "value": "BTC-USD (mismatch)"
+          }
+        ],
+        "caption": "A SOL-USD heatmap was not rendered because both queries returned mismatched data."
+      },
+      "scores": {
+        "correct_tool_selected": 0,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": [
+        "Expected query_spread_series, render_spread_heatmap; saw query_spread_series, query_spread_series, render_verdict_card"
+      ]
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 2,
+      "caseId": "orderbook-point-in-time",
+      "input": "What was the Kraken BTC-USD top of book around 2026-07-20T18:44:08.368Z?",
+      "expectedTools": [
+        "query_orderbook_at",
+        "render_verdict_card"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "query_orderbook_at",
+        "render_verdict_card"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_verdict_card",
+      "renderInput": {
+        "verdict": "Kraken BTC-USD top of book: bid $65,332.50 / ask $65,332.60.",
+        "confidence": 0.99,
+        "stats": [
+          {
+            "label": "Snapshot",
+            "value": "2026-07-20 18:44:08.300Z"
+          },
+          {
+            "label": "Bid",
+            "value": "$65,332.50"
+          },
+          {
+            "label": "Ask",
+            "value": "$65,332.60"
+          },
+          {
+            "label": "Quoted spread",
+            "value": "$0.10"
+          }
+        ],
+        "caption": "Nearest Kraken order-book snapshot to the requested time."
+      },
+      "renderOutput": {
+        "verdict": "Kraken BTC-USD top of book: bid $65,332.50 / ask $65,332.60.",
+        "confidence": 0.99,
+        "stats": [
+          {
+            "label": "Snapshot",
+            "value": "2026-07-20 18:44:08.300Z"
+          },
+          {
+            "label": "Bid",
+            "value": "$65,332.50"
+          },
+          {
+            "label": "Ask",
+            "value": "$65,332.60"
+          },
+          {
+            "label": "Quoted spread",
+            "value": "$0.10"
+          }
+        ],
+        "caption": "Nearest Kraken order-book snapshot to the requested time."
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 2,
+      "caseId": "correlation-network-canonical",
+      "input": "Render the rolling correlation network for BTC-USD, ETH-USD, and SOL-USD.",
+      "expectedTools": [
+        "query_correlations",
+        "render_correlation_network"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "query_correlations",
+        "render_correlation_network"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_correlation_network",
+      "renderInput": {
+        "symbols": [
+          "BTC-USD",
+          "ETH-USD",
+          "SOL-USD"
+        ],
+        "hours": 24,
+        "caption": "Rolling return-correlation network across BTC, ETH, and SOL; available observations end 2026-07-20 18:42 UTC."
+      },
+      "renderOutput": {
+        "input": {
+          "symbols": [
+            "BTC-USD",
+            "ETH-USD",
+            "SOL-USD"
+          ],
+          "hours": 24,
+          "caption": "Rolling return-correlation network across BTC, ETH, and SOL; available observations end 2026-07-20 18:42 UTC."
+        },
+        "symbols": [
+          "BTC-USD",
+          "ETH-USD",
+          "SOL-USD"
+        ],
+        "rows": [
+          {
+            "symbol": "BTC-USD",
+            "minute": "2026-07-20 18:40:00",
+            "close": 65000
+          },
+          {
+            "symbol": "BTC-USD",
+            "minute": "2026-07-20 18:41:00",
+            "close": 65010
+          },
+          {
+            "symbol": "BTC-USD",
+            "minute": "2026-07-20 18:42:00",
+            "close": 65030
+          },
+          {
+            "symbol": "ETH-USD",
+            "minute": "2026-07-20 18:40:00",
+            "close": 1900
+          },
+          {
+            "symbol": "ETH-USD",
+            "minute": "2026-07-20 18:41:00",
+            "close": 1901
+          },
+          {
+            "symbol": "ETH-USD",
+            "minute": "2026-07-20 18:42:00",
+            "close": 1903
+          },
+          {
+            "symbol": "SOL-USD",
+            "minute": "2026-07-20 18:40:00",
+            "close": 77
+          },
+          {
+            "symbol": "SOL-USD",
+            "minute": "2026-07-20 18:41:00",
+            "close": 77.05
+          },
+          {
+            "symbol": "SOL-USD",
+            "minute": "2026-07-20 18:42:00",
+            "close": 77.1
+          }
+        ],
+        "correlations": [
+          {
+            "source": "BTC-USD",
+            "target": "ETH-USD",
+            "correlation": 0.76,
+            "samples": 60,
+            "series": []
+          },
+          {
+            "source": "BTC-USD",
+            "target": "SOL-USD",
+            "correlation": 0.71,
+            "samples": 60,
+            "series": []
+          }
+        ]
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 2,
+      "caseId": "volatility-bands-canonical",
+      "input": "Show ETH-USD with rolling volatility bands over the last 90 minutes.",
+      "expectedTools": [
+        "query_price_series",
+        "render_volatility_bands"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "query_price_series",
+        "render_volatility_bands"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_volatility_bands",
+      "renderInput": {
+        "symbol": "ETH-USD",
+        "window_start": "2026-07-20T21:26:47.720Z",
+        "window_end": "2026-07-20T22:56:47.720Z",
+        "caption": "ETH-USD rolling volatility bands — 90 minutes ending 2026-07-20 22:56 UTC."
+      },
+      "renderOutput": {
+        "input": {
+          "symbol": "ETH-USD",
+          "window_start": "2026-07-20T21:26:47.720Z",
+          "window_end": "2026-07-20T22:56:47.720Z",
+          "caption": "ETH-USD rolling volatility bands — 90 minutes ending 2026-07-20 22:56 UTC."
+        },
+        "ohlc": [
+          {
+            "minute": "2026-07-20 18:40:00",
+            "open": 65000,
+            "high": 65040,
+            "low": 64980,
+            "close": 65020,
+            "volume": 1.2
+          },
+          {
+            "minute": "2026-07-20 18:41:00",
+            "open": 65020,
+            "high": 65080,
+            "low": 65010,
+            "close": 65070,
+            "volume": 1.6
+          },
+          {
+            "minute": "2026-07-20 18:42:00",
+            "open": 65070,
+            "high": 65090,
+            "low": 65025,
+            "close": 65035,
+            "volume": 0.9
+          }
+        ]
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 2,
+      "caseId": "recent-events-canonical",
+      "input": "What recent BTC-USD anomalies has the detector found?",
+      "expectedTools": [
+        "query_recent_events",
+        "render_verdict_card"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "query_recent_events",
+        "render_verdict_card"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_verdict_card",
+      "renderInput": {
+        "verdict": "BTC-USD detector found one recent anomaly: a volatility spike.",
+        "confidence": 0.96,
+        "stats": [
+          {
+            "label": "Detected",
+            "value": "2026-07-20 18:40–18:41 UTC"
+          },
+          {
+            "label": "Severity",
+            "value": "3.4"
+          },
+          {
+            "label": "1m return",
+            "value": "+1.20%"
+          },
+          {
+            "label": "Trailing σ",
+            "value": "0.35%"
+          }
+        ],
+        "caption": "Recent BTC-USD anomaly detector results"
+      },
+      "renderOutput": {
+        "verdict": "BTC-USD detector found one recent anomaly: a volatility spike.",
+        "confidence": 0.96,
+        "stats": [
+          {
+            "label": "Detected",
+            "value": "2026-07-20 18:40–18:41 UTC"
+          },
+          {
+            "label": "Severity",
+            "value": "3.4"
+          },
+          {
+            "label": "1m return",
+            "value": "+1.20%"
+          },
+          {
+            "label": "Trailing σ",
+            "value": "0.35%"
+          }
+        ],
+        "caption": "Recent BTC-USD anomaly detector results"
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 2,
+      "caseId": "ambiguous-symbol",
+      "input": "Show me the last hour, but I do not know which market.",
+      "expectedTools": [
+        "render_verdict_card"
+      ],
+      "mode": "reasonable",
+      "calledTools": [
+        "query_recent_events",
+        "query_recent_events",
+        "query_recent_events",
+        "query_correlations",
+        "query_price_series",
+        "query_price_series",
+        "query_price_series",
+        "render_verdict_card"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_verdict_card",
+      "renderInput": {
+        "verdict": "No usable market data is available for the requested last-hour window across BTC-USD, ETH-USD, or SOL-USD.",
+        "confidence": 0.99,
+        "stats": [
+          {
+            "label": "Requested window",
+            "value": "21:57–22:57 UTC"
+          },
+          {
+            "label": "Latest returned data",
+            "value": "18:42 UTC"
+          },
+          {
+            "label": "Markets checked",
+            "value": "BTC, ETH, SOL"
+          }
+        ],
+        "caption": "Returned records predate the requested hour; no market is selected."
+      },
+      "renderOutput": {
+        "verdict": "No usable market data is available for the requested last-hour window across BTC-USD, ETH-USD, or SOL-USD.",
+        "confidence": 0.99,
+        "stats": [
+          {
+            "label": "Requested window",
+            "value": "21:57–22:57 UTC"
+          },
+          {
+            "label": "Latest returned data",
+            "value": "18:42 UTC"
+          },
+          {
+            "label": "Markets checked",
+            "value": "BTC, ETH, SOL"
+          }
+        ],
+        "caption": "Returned records predate the requested hour; no market is selected."
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 2,
+      "caseId": "ambiguous-window",
+      "input": "Show me BTC-USD sometime around the move.",
+      "expectedTools": [
+        "render_verdict_card"
+      ],
+      "mode": "reasonable",
+      "calledTools": [
+        "query_recent_events",
+        "render_candlestick"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_candlestick",
+      "renderInput": {
+        "symbol": "BTC-USD",
+        "window_start": "2026-07-20T18:10:00Z",
+        "window_end": "2026-07-20T19:10:00Z",
+        "interval": "1m",
+        "annotations": [
+          {
+            "timestamp": "2026-07-20T18:40:00Z",
+            "label": "Volatility spike (severity 3.4)",
+            "kind": "event"
+          }
+        ],
+        "caption": "BTC-USD around the detected 18:40 UTC volatility move"
+      },
+      "renderOutput": {
+        "input": {
+          "symbol": "BTC-USD",
+          "window_start": "2026-07-20T18:10:00Z",
+          "window_end": "2026-07-20T19:10:00Z",
+          "interval": "1m",
+          "annotations": [
+            {
+              "timestamp": "2026-07-20T18:40:00Z",
+              "label": "Volatility spike (severity 3.4)",
+              "kind": "event"
+            }
+          ],
+          "caption": "BTC-USD around the detected 18:40 UTC volatility move"
+        },
+        "ohlc": [
+          {
+            "minute": "2026-07-20 18:40:00",
+            "open": 65000,
+            "high": 65040,
+            "low": 64980,
+            "close": 65020,
+            "volume": 1.2
+          },
+          {
+            "minute": "2026-07-20 18:41:00",
+            "open": 65020,
+            "high": 65080,
+            "low": 65010,
+            "close": 65070,
+            "volume": 1.6
+          },
+          {
+            "minute": "2026-07-20 18:42:00",
+            "open": 65070,
+            "high": 65090,
+            "low": 65025,
+            "close": 65035,
+            "volume": 0.9
+          }
+        ]
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 2,
+      "caseId": "no-data-future-window",
+      "input": "Show BTC-USD candles between 2099-01-01T00:00:00Z and 2099-01-01T01:00:00Z.",
+      "expectedTools": [
+        "query_price_series",
+        "render_verdict_card"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "query_price_series",
+        "query_price_series",
+        "render_verdict_card"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_verdict_card",
+      "renderInput": {
+        "verdict": "No BTC-USD candle data is available for the requested 2099 window or the recent retry window.",
+        "confidence": 1,
+        "stats": [
+          {
+            "label": "Requested window",
+            "value": "2099-01-01 00:00–01:00 UTC"
+          },
+          {
+            "label": "Recent retry",
+            "value": "2026-07-20 22:27–22:57 UTC"
+          }
+        ],
+        "caption": "Candlestick chart not rendered because no price-series rows were returned."
+      },
+      "renderOutput": {
+        "verdict": "No BTC-USD candle data is available for the requested 2099 window or the recent retry window.",
+        "confidence": 1,
+        "stats": [
+          {
+            "label": "Requested window",
+            "value": "2099-01-01 00:00–01:00 UTC"
+          },
+          {
+            "label": "Recent retry",
+            "value": "2026-07-20 22:27–22:57 UTC"
+          }
+        ],
+        "caption": "Candlestick chart not rendered because no price-series rows were returned."
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 2,
+      "caseId": "no-data-pre-ingestion-window",
+      "input": "Show SOL-USD spreads for 2020-01-01T00:00:00Z to 2020-01-01T01:00:00Z.",
+      "expectedTools": [
+        "query_spread_series",
+        "render_verdict_card"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "query_spread_series",
+        "query_spread_series",
+        "render_verdict_card"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_verdict_card",
+      "renderInput": {
+        "verdict": "No SOL-USD spread data is available for the requested historical window.",
+        "confidence": 0.99,
+        "stats": [
+          {
+            "label": "Requested window",
+            "value": "2020-01-01 00:00–01:00 UTC"
+          },
+          {
+            "label": "Available spread query",
+            "value": "Recent windows only"
+          },
+          {
+            "label": "Recent-data retry",
+            "value": "No rows"
+          }
+        ],
+        "caption": "Historical spread series cannot be rendered from the available data source."
+      },
+      "renderOutput": {
+        "verdict": "No SOL-USD spread data is available for the requested historical window.",
+        "confidence": 0.99,
+        "stats": [
+          {
+            "label": "Requested window",
+            "value": "2020-01-01 00:00–01:00 UTC"
+          },
+          {
+            "label": "Available spread query",
+            "value": "Recent windows only"
+          },
+          {
+            "label": "Recent-data retry",
+            "value": "No rows"
+          }
+        ],
+        "caption": "Historical spread series cannot be rendered from the available data source."
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 2,
+      "caseId": "set-alert-volatility",
+      "input": "Set an alert for BTC-USD volatility spikes at severity 3 or higher.",
+      "expectedTools": [
+        "set_alert",
+        "render_verdict_card"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "set_alert",
+        "render_verdict_card"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_verdict_card",
+      "renderInput": {
+        "verdict": "BTC-USD volatility-spike alert requires approval",
+        "confidence": 1,
+        "stats": [
+          {
+            "label": "Minimum severity",
+            "value": "3.0"
+          },
+          {
+            "label": "Status",
+            "value": "Awaiting approval"
+          }
+        ],
+        "caption": "Alert request submitted; approval is required before activation."
+      },
+      "renderOutput": {
+        "verdict": "BTC-USD volatility-spike alert requires approval",
+        "confidence": 1,
+        "stats": [
+          {
+            "label": "Minimum severity",
+            "value": "3.0"
+          },
+          {
+            "label": "Status",
+            "value": "Awaiting approval"
+          }
+        ],
+        "caption": "Alert request submitted; approval is required before activation."
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 2,
+      "caseId": "set-alert-spread",
+      "input": "Alert me when ETH-USD has a spread anomaly above severity 4.",
+      "expectedTools": [
+        "set_alert",
+        "render_verdict_card"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "set_alert",
+        "render_verdict_card"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_verdict_card",
+      "renderInput": {
+        "verdict": "ETH-USD spread-anomaly alert is pending approval",
+        "confidence": 1,
+        "stats": [
+          {
+            "label": "Threshold",
+            "value": "severity > 4"
+          },
+          {
+            "label": "Status",
+            "value": "approval required"
+          }
+        ],
+        "caption": "Alert subscription request submitted; approval is required before activation."
+      },
+      "renderOutput": {
+        "verdict": "ETH-USD spread-anomaly alert is pending approval",
+        "confidence": 1,
+        "stats": [
+          {
+            "label": "Threshold",
+            "value": "severity > 4"
+          },
+          {
+            "label": "Status",
+            "value": "approval required"
+          }
+        ],
+        "caption": "Alert subscription request submitted; approval is required before activation."
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 2,
+      "caseId": "drilldown-spread-trades",
+      "input": "Show me the BTC-USD trades around 2026-07-20T18:44:08.368Z that produced this spread reading.",
+      "expectedTools": [
+        "query_trades_around",
+        "render_verdict_card"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "query_trades_around",
+        "render_verdict_card"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_verdict_card",
+      "renderInput": {
+        "verdict": "BTC-USD prints show a $5.20 cross-exchange gap: Coinbase buy at $65,327.40 versus Kraken sell at $65,332.60.",
+        "confidence": 0.95,
+        "stats": [
+          {
+            "label": "Coinbase",
+            "value": "Buy 0.01 BTC @ $65,327.40"
+          },
+          {
+            "label": "Kraken",
+            "value": "Sell 0.02 BTC @ $65,332.60"
+          },
+          {
+            "label": "Price gap",
+            "value": "$5.20 (0.008%)"
+          },
+          {
+            "label": "Print times",
+            "value": "18:44:08.200 / .410 UTC"
+          }
+        ],
+        "caption": "Trades within 60 seconds of 2026-07-20T18:44:08.368Z"
+      },
+      "renderOutput": {
+        "verdict": "BTC-USD prints show a $5.20 cross-exchange gap: Coinbase buy at $65,327.40 versus Kraken sell at $65,332.60.",
+        "confidence": 0.95,
+        "stats": [
+          {
+            "label": "Coinbase",
+            "value": "Buy 0.01 BTC @ $65,327.40"
+          },
+          {
+            "label": "Kraken",
+            "value": "Sell 0.02 BTC @ $65,332.60"
+          },
+          {
+            "label": "Price gap",
+            "value": "$5.20 (0.008%)"
+          },
+          {
+            "label": "Print times",
+            "value": "18:44:08.200 / .410 UTC"
+          }
+        ],
+        "caption": "Trades within 60 seconds of 2026-07-20T18:44:08.368Z"
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 2,
+      "caseId": "drilldown-price-trades",
+      "input": "Drill into ETH-USD trades around 2026-07-20T18:45:00Z for the move in that candle.",
+      "expectedTools": [
+        "query_trades_around",
+        "render_verdict_card"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "query_trades_around",
+        "render_verdict_card"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_verdict_card",
+      "renderInput": {
+        "verdict": "Unable to attribute the ETH-USD candle: the trade-tape query returned BTC-USD trades rather than ETH-USD.",
+        "confidence": 0.98,
+        "stats": [
+          {
+            "label": "Requested market",
+            "value": "ETH-USD"
+          },
+          {
+            "label": "Timestamp",
+            "value": "2026-07-20 18:45:00Z"
+          },
+          {
+            "label": "Returned market",
+            "value": "BTC-USD"
+          }
+        ],
+        "caption": "Trade attribution unavailable because the returned tape did not match the requested symbol."
+      },
+      "renderOutput": {
+        "verdict": "Unable to attribute the ETH-USD candle: the trade-tape query returned BTC-USD trades rather than ETH-USD.",
+        "confidence": 0.98,
+        "stats": [
+          {
+            "label": "Requested market",
+            "value": "ETH-USD"
+          },
+          {
+            "label": "Timestamp",
+            "value": "2026-07-20 18:45:00Z"
+          },
+          {
+            "label": "Returned market",
+            "value": "BTC-USD"
+          }
+        ],
+        "caption": "Trade attribution unavailable because the returned tape did not match the requested symbol."
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 2,
+      "caseId": "save-investigation-heatmap",
+      "input": "Save this BTC-USD spread heatmap investigation with the current widget snapshot.",
+      "expectedTools": [
+        "save_investigation",
+        "render_verdict_card"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "save_investigation",
+        "render_verdict_card"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_verdict_card",
+      "renderInput": {
+        "verdict": "BTC-USD spread heatmap investigation saved",
+        "confidence": 1,
+        "stats": [
+          {
+            "label": "Snapshot",
+            "value": "Minimal current context"
+          },
+          {
+            "label": "Saved at",
+            "value": "2026-07-20 22:57 UTC"
+          }
+        ],
+        "caption": "Investigation snapshot saved successfully."
+      },
+      "renderOutput": {
+        "verdict": "BTC-USD spread heatmap investigation saved",
+        "confidence": 1,
+        "stats": [
+          {
+            "label": "Snapshot",
+            "value": "Minimal current context"
+          },
+          {
+            "label": "Saved at",
+            "value": "2026-07-20 22:57 UTC"
+          }
+        ],
+        "caption": "Investigation snapshot saved successfully."
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 2,
+      "caseId": "save-investigation-summary",
+      "input": "Save the current correlation network investigation so I can revisit it later.",
+      "expectedTools": [
+        "save_investigation",
+        "render_verdict_card"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "save_investigation",
+        "render_verdict_card"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_verdict_card",
+      "renderInput": {
+        "verdict": "Correlation network investigation saved",
+        "confidence": 1,
+        "stats": [
+          {
+            "label": "Snapshot",
+            "value": "Minimal context snapshot"
+          },
+          {
+            "label": "Saved at",
+            "value": "2026-07-20 22:58 UTC"
+          }
+        ],
+        "caption": "Saved for later review."
+      },
+      "renderOutput": {
+        "verdict": "Correlation network investigation saved",
+        "confidence": 1,
+        "stats": [
+          {
+            "label": "Snapshot",
+            "value": "Minimal context snapshot"
+          },
+          {
+            "label": "Saved at",
+            "value": "2026-07-20 22:58 UTC"
+          }
+        ],
+        "caption": "Saved for later review."
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 3,
+      "caseId": "price-candlestick-canonical",
+      "input": "Show me a BTC-USD candlestick chart for the last hour.",
+      "expectedTools": [
+        "query_price_series",
+        "render_candlestick"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "query_price_series",
+        "render_candlestick"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_candlestick",
+      "renderInput": {
+        "symbol": "BTC-USD",
+        "window_start": "2026-07-20T21:58:05.616Z",
+        "window_end": "2026-07-20T22:58:05.616Z",
+        "interval": "1m",
+        "annotations": [],
+        "caption": "BTC-USD candlesticks — last hour ending 2026-07-20 22:58 UTC"
+      },
+      "renderOutput": {
+        "input": {
+          "symbol": "BTC-USD",
+          "window_start": "2026-07-20T21:58:05.616Z",
+          "window_end": "2026-07-20T22:58:05.616Z",
+          "interval": "1m",
+          "annotations": [],
+          "caption": "BTC-USD candlesticks — last hour ending 2026-07-20 22:58 UTC"
+        },
+        "ohlc": [
+          {
+            "minute": "2026-07-20 18:40:00",
+            "open": 65000,
+            "high": 65040,
+            "low": 64980,
+            "close": 65020,
+            "volume": 1.2
+          },
+          {
+            "minute": "2026-07-20 18:41:00",
+            "open": 65020,
+            "high": 65080,
+            "low": 65010,
+            "close": 65070,
+            "volume": 1.6
+          },
+          {
+            "minute": "2026-07-20 18:42:00",
+            "open": 65070,
+            "high": 65090,
+            "low": 65025,
+            "close": 65035,
+            "volume": 0.9
+          }
+        ]
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 3,
+      "caseId": "price-candlestick-rephrase",
+      "input": "How has ETH traded over the past 45 minutes? Use candles.",
+      "expectedTools": [
+        "query_price_series",
+        "render_candlestick"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "query_price_series",
+        "render_candlestick"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_candlestick",
+      "renderInput": {
+        "symbol": "ETH-USD",
+        "window_start": "2026-07-20T22:13:09.328Z",
+        "window_end": "2026-07-20T22:58:09.328Z",
+        "interval": "1m",
+        "annotations": [],
+        "caption": "ETH-USD 1-minute candles, past 45 minutes (22:13–22:58 UTC)."
+      },
+      "renderOutput": {
+        "input": {
+          "symbol": "ETH-USD",
+          "window_start": "2026-07-20T22:13:09.328Z",
+          "window_end": "2026-07-20T22:58:09.328Z",
+          "interval": "1m",
+          "annotations": [],
+          "caption": "ETH-USD 1-minute candles, past 45 minutes (22:13–22:58 UTC)."
+        },
+        "ohlc": [
+          {
+            "minute": "2026-07-20 18:40:00",
+            "open": 65000,
+            "high": 65040,
+            "low": 64980,
+            "close": 65020,
+            "volume": 1.2
+          },
+          {
+            "minute": "2026-07-20 18:41:00",
+            "open": 65020,
+            "high": 65080,
+            "low": 65010,
+            "close": 65070,
+            "volume": 1.6
+          },
+          {
+            "minute": "2026-07-20 18:42:00",
+            "open": 65070,
+            "high": 65090,
+            "low": 65025,
+            "close": 65035,
+            "volume": 0.9
+          }
+        ]
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 3,
+      "caseId": "spread-heatmap-canonical",
+      "input": "Show the BTC-USD Coinbase/Kraken spread heatmap for the last 15 minutes.",
+      "expectedTools": [
+        "query_spread_series",
+        "render_spread_heatmap"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "query_spread_series",
+        "render_spread_heatmap"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_spread_heatmap",
+      "renderInput": {
+        "symbol": "BTC-USD",
+        "minutes": 15,
+        "caption": "BTC-USD Coinbase/Kraken cross-exchange spread — last 15 minutes"
+      },
+      "renderOutput": {
+        "input": {
+          "symbol": "BTC-USD",
+          "minutes": 15,
+          "caption": "BTC-USD Coinbase/Kraken cross-exchange spread — last 15 minutes"
+        },
+        "rows": [
+          {
+            "symbol": "BTC-USD",
+            "timestamp": "2026-07-20 18:44:08.368",
+            "exchange_a": "coinbase",
+            "bid_a": 65327.37,
+            "ask_a": 65327.38,
+            "exchange_b": "kraken",
+            "bid_b": 65332.5,
+            "ask_b": 65332.6,
+            "time_delta_ms": 208,
+            "spread_a_over_b": -5.23
+          }
+        ]
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 3,
+      "caseId": "spread-heatmap-rephrase",
+      "input": "Where did SOL-USD cross-exchange spreads widen recently? Give me the heatmap.",
+      "expectedTools": [
+        "query_spread_series",
+        "render_spread_heatmap"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "query_spread_series",
+        "query_spread_series",
+        "render_verdict_card"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_verdict_card",
+      "renderInput": {
+        "verdict": "No usable recent SOL-USD spread data is available.",
+        "confidence": 0.98,
+        "stats": [
+          {
+            "label": "Requested window",
+            "value": "120 min"
+          },
+          {
+            "label": "Retry window",
+            "value": "30 min"
+          },
+          {
+            "label": "Returned symbol",
+            "value": "BTC-USD (mismatch)"
+          }
+        ],
+        "caption": "The spread query returned mismatched BTC-USD rows on both attempts, so a SOL-USD heatmap cannot be rendered honestly."
+      },
+      "renderOutput": {
+        "verdict": "No usable recent SOL-USD spread data is available.",
+        "confidence": 0.98,
+        "stats": [
+          {
+            "label": "Requested window",
+            "value": "120 min"
+          },
+          {
+            "label": "Retry window",
+            "value": "30 min"
+          },
+          {
+            "label": "Returned symbol",
+            "value": "BTC-USD (mismatch)"
+          }
+        ],
+        "caption": "The spread query returned mismatched BTC-USD rows on both attempts, so a SOL-USD heatmap cannot be rendered honestly."
+      },
+      "scores": {
+        "correct_tool_selected": 0,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": [
+        "Expected query_spread_series, render_spread_heatmap; saw query_spread_series, query_spread_series, render_verdict_card"
+      ]
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 3,
+      "caseId": "orderbook-point-in-time",
+      "input": "What was the Kraken BTC-USD top of book around 2026-07-20T18:44:08.368Z?",
+      "expectedTools": [
+        "query_orderbook_at",
+        "render_verdict_card"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "query_orderbook_at",
+        "render_verdict_card"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_verdict_card",
+      "renderInput": {
+        "verdict": "Kraken BTC-USD top of book: $65,332.50 bid / $65,332.60 ask.",
+        "confidence": 0.99,
+        "stats": [
+          {
+            "label": "Snapshot",
+            "value": "2026-07-20 18:44:08.300 UTC"
+          },
+          {
+            "label": "Bid",
+            "value": "$65,332.50"
+          },
+          {
+            "label": "Ask",
+            "value": "$65,332.60"
+          },
+          {
+            "label": "Spread",
+            "value": "$0.10"
+          }
+        ],
+        "caption": "Nearest Kraken order-book snapshot to the requested timestamp."
+      },
+      "renderOutput": {
+        "verdict": "Kraken BTC-USD top of book: $65,332.50 bid / $65,332.60 ask.",
+        "confidence": 0.99,
+        "stats": [
+          {
+            "label": "Snapshot",
+            "value": "2026-07-20 18:44:08.300 UTC"
+          },
+          {
+            "label": "Bid",
+            "value": "$65,332.50"
+          },
+          {
+            "label": "Ask",
+            "value": "$65,332.60"
+          },
+          {
+            "label": "Spread",
+            "value": "$0.10"
+          }
+        ],
+        "caption": "Nearest Kraken order-book snapshot to the requested timestamp."
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 3,
+      "caseId": "correlation-network-canonical",
+      "input": "Render the rolling correlation network for BTC-USD, ETH-USD, and SOL-USD.",
+      "expectedTools": [
+        "query_correlations",
+        "render_correlation_network"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "query_correlations",
+        "render_correlation_network"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_correlation_network",
+      "renderInput": {
+        "symbols": [
+          "BTC-USD",
+          "ETH-USD",
+          "SOL-USD"
+        ],
+        "hours": 24,
+        "caption": "Rolling correlation network for BTC, ETH, and SOL; available synchronized close observations begin at 18:40 UTC."
+      },
+      "renderOutput": {
+        "input": {
+          "symbols": [
+            "BTC-USD",
+            "ETH-USD",
+            "SOL-USD"
+          ],
+          "hours": 24,
+          "caption": "Rolling correlation network for BTC, ETH, and SOL; available synchronized close observations begin at 18:40 UTC."
+        },
+        "symbols": [
+          "BTC-USD",
+          "ETH-USD",
+          "SOL-USD"
+        ],
+        "rows": [
+          {
+            "symbol": "BTC-USD",
+            "minute": "2026-07-20 18:40:00",
+            "close": 65000
+          },
+          {
+            "symbol": "BTC-USD",
+            "minute": "2026-07-20 18:41:00",
+            "close": 65010
+          },
+          {
+            "symbol": "BTC-USD",
+            "minute": "2026-07-20 18:42:00",
+            "close": 65030
+          },
+          {
+            "symbol": "ETH-USD",
+            "minute": "2026-07-20 18:40:00",
+            "close": 1900
+          },
+          {
+            "symbol": "ETH-USD",
+            "minute": "2026-07-20 18:41:00",
+            "close": 1901
+          },
+          {
+            "symbol": "ETH-USD",
+            "minute": "2026-07-20 18:42:00",
+            "close": 1903
+          },
+          {
+            "symbol": "SOL-USD",
+            "minute": "2026-07-20 18:40:00",
+            "close": 77
+          },
+          {
+            "symbol": "SOL-USD",
+            "minute": "2026-07-20 18:41:00",
+            "close": 77.05
+          },
+          {
+            "symbol": "SOL-USD",
+            "minute": "2026-07-20 18:42:00",
+            "close": 77.1
+          }
+        ],
+        "correlations": [
+          {
+            "source": "BTC-USD",
+            "target": "ETH-USD",
+            "correlation": 0.76,
+            "samples": 60,
+            "series": []
+          },
+          {
+            "source": "BTC-USD",
+            "target": "SOL-USD",
+            "correlation": 0.71,
+            "samples": 60,
+            "series": []
+          }
+        ]
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 3,
+      "caseId": "volatility-bands-canonical",
+      "input": "Show ETH-USD with rolling volatility bands over the last 90 minutes.",
+      "expectedTools": [
+        "query_price_series",
+        "render_volatility_bands"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "query_price_series",
+        "render_volatility_bands"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_volatility_bands",
+      "renderInput": {
+        "symbol": "ETH-USD",
+        "window_start": "2026-07-20T21:28:35.768Z",
+        "window_end": "2026-07-20T22:58:35.768Z",
+        "caption": "ETH-USD rolling volatility bands — 90 minutes ending 2026-07-20 22:58 UTC"
+      },
+      "renderOutput": {
+        "input": {
+          "symbol": "ETH-USD",
+          "window_start": "2026-07-20T21:28:35.768Z",
+          "window_end": "2026-07-20T22:58:35.768Z",
+          "caption": "ETH-USD rolling volatility bands — 90 minutes ending 2026-07-20 22:58 UTC"
+        },
+        "ohlc": [
+          {
+            "minute": "2026-07-20 18:40:00",
+            "open": 65000,
+            "high": 65040,
+            "low": 64980,
+            "close": 65020,
+            "volume": 1.2
+          },
+          {
+            "minute": "2026-07-20 18:41:00",
+            "open": 65020,
+            "high": 65080,
+            "low": 65010,
+            "close": 65070,
+            "volume": 1.6
+          },
+          {
+            "minute": "2026-07-20 18:42:00",
+            "open": 65070,
+            "high": 65090,
+            "low": 65025,
+            "close": 65035,
+            "volume": 0.9
+          }
+        ]
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 3,
+      "caseId": "recent-events-canonical",
+      "input": "What recent BTC-USD anomalies has the detector found?",
+      "expectedTools": [
+        "query_recent_events",
+        "render_verdict_card"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "query_recent_events",
+        "render_verdict_card"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_verdict_card",
+      "renderInput": {
+        "verdict": "BTC-USD detector found 1 recent anomaly: a volatility spike.",
+        "confidence": 0.99,
+        "stats": [
+          {
+            "label": "Time (UTC)",
+            "value": "2026-07-20 18:40–18:41"
+          },
+          {
+            "label": "Severity",
+            "value": "3.4"
+          },
+          {
+            "label": "Last return",
+            "value": "1.20%"
+          },
+          {
+            "label": "Trailing σ",
+            "value": "0.35%"
+          }
+        ],
+        "caption": "Recent BTC-USD anomaly detector events"
+      },
+      "renderOutput": {
+        "verdict": "BTC-USD detector found 1 recent anomaly: a volatility spike.",
+        "confidence": 0.99,
+        "stats": [
+          {
+            "label": "Time (UTC)",
+            "value": "2026-07-20 18:40–18:41"
+          },
+          {
+            "label": "Severity",
+            "value": "3.4"
+          },
+          {
+            "label": "Last return",
+            "value": "1.20%"
+          },
+          {
+            "label": "Trailing σ",
+            "value": "0.35%"
+          }
+        ],
+        "caption": "Recent BTC-USD anomaly detector events"
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 3,
+      "caseId": "ambiguous-symbol",
+      "input": "Show me the last hour, but I do not know which market.",
+      "expectedTools": [
+        "render_verdict_card"
+      ],
+      "mode": "reasonable",
+      "calledTools": [
+        "query_recent_events",
+        "query_recent_events",
+        "query_recent_events",
+        "query_price_series",
+        "query_price_series",
+        "render_verdict_card"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_verdict_card",
+      "renderInput": {
+        "verdict": "No market selected; BTC-USD was used as the default benchmark, but no current last-hour observations were available.",
+        "confidence": 0.98,
+        "stats": [
+          {
+            "label": "Requested window",
+            "value": "21:58–22:58 UTC"
+          },
+          {
+            "label": "Latest returned bar",
+            "value": "18:42 UTC"
+          },
+          {
+            "label": "Markets available",
+            "value": "BTC, ETH, SOL"
+          }
+        ],
+        "caption": "Select BTC-USD, ETH-USD, or SOL-USD for a last-hour view."
+      },
+      "renderOutput": {
+        "verdict": "No market selected; BTC-USD was used as the default benchmark, but no current last-hour observations were available.",
+        "confidence": 0.98,
+        "stats": [
+          {
+            "label": "Requested window",
+            "value": "21:58–22:58 UTC"
+          },
+          {
+            "label": "Latest returned bar",
+            "value": "18:42 UTC"
+          },
+          {
+            "label": "Markets available",
+            "value": "BTC, ETH, SOL"
+          }
+        ],
+        "caption": "Select BTC-USD, ETH-USD, or SOL-USD for a last-hour view."
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 3,
+      "caseId": "ambiguous-window",
+      "input": "Show me BTC-USD sometime around the move.",
+      "expectedTools": [
+        "render_verdict_card"
+      ],
+      "mode": "reasonable",
+      "calledTools": [
+        "query_recent_events",
+        "query_price_series",
+        "render_candlestick"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_candlestick",
+      "renderInput": {
+        "symbol": "BTC-USD",
+        "window_start": "2026-07-20T18:20:00Z",
+        "window_end": "2026-07-20T19:00:00Z",
+        "interval": "1m",
+        "annotations": [
+          {
+            "timestamp": "2026-07-20T18:40:00Z",
+            "label": "Volatility spike (3.4)",
+            "kind": "event"
+          }
+        ],
+        "caption": "BTC-USD around the detected 18:40 UTC volatility move."
+      },
+      "renderOutput": {
+        "input": {
+          "symbol": "BTC-USD",
+          "window_start": "2026-07-20T18:20:00Z",
+          "window_end": "2026-07-20T19:00:00Z",
+          "interval": "1m",
+          "annotations": [
+            {
+              "timestamp": "2026-07-20T18:40:00Z",
+              "label": "Volatility spike (3.4)",
+              "kind": "event"
+            }
+          ],
+          "caption": "BTC-USD around the detected 18:40 UTC volatility move."
+        },
+        "ohlc": [
+          {
+            "minute": "2026-07-20 18:40:00",
+            "open": 65000,
+            "high": 65040,
+            "low": 64980,
+            "close": 65020,
+            "volume": 1.2
+          },
+          {
+            "minute": "2026-07-20 18:41:00",
+            "open": 65020,
+            "high": 65080,
+            "low": 65010,
+            "close": 65070,
+            "volume": 1.6
+          },
+          {
+            "minute": "2026-07-20 18:42:00",
+            "open": 65070,
+            "high": 65090,
+            "low": 65025,
+            "close": 65035,
+            "volume": 0.9
+          }
+        ]
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 3,
+      "caseId": "no-data-future-window",
+      "input": "Show BTC-USD candles between 2099-01-01T00:00:00Z and 2099-01-01T01:00:00Z.",
+      "expectedTools": [
+        "query_price_series",
+        "render_verdict_card"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "query_price_series",
+        "query_price_series",
+        "render_verdict_card"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_verdict_card",
+      "renderInput": {
+        "verdict": "No BTC-USD candle data is available for the requested 2099-01-01 window.",
+        "confidence": 1,
+        "stats": [
+          {
+            "label": "Requested window",
+            "value": "00:00–01:00 UTC"
+          },
+          {
+            "label": "Retry window",
+            "value": "00:30–01:00 UTC"
+          }
+        ],
+        "caption": "No rows returned, including on a shorter retry window."
+      },
+      "renderOutput": {
+        "verdict": "No BTC-USD candle data is available for the requested 2099-01-01 window.",
+        "confidence": 1,
+        "stats": [
+          {
+            "label": "Requested window",
+            "value": "00:00–01:00 UTC"
+          },
+          {
+            "label": "Retry window",
+            "value": "00:30–01:00 UTC"
+          }
+        ],
+        "caption": "No rows returned, including on a shorter retry window."
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 3,
+      "caseId": "no-data-pre-ingestion-window",
+      "input": "Show SOL-USD spreads for 2020-01-01T00:00:00Z to 2020-01-01T01:00:00Z.",
+      "expectedTools": [
+        "query_spread_series",
+        "render_verdict_card"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "query_spread_series",
+        "query_spread_series",
+        "render_verdict_card"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_verdict_card",
+      "renderInput": {
+        "verdict": "No SOL-USD spread data is available for the requested 2020-01-01 window.",
+        "confidence": 0.98,
+        "stats": [
+          {
+            "label": "Requested window",
+            "value": "2020-01-01 00:00–01:00 UTC"
+          },
+          {
+            "label": "Recent-data retry",
+            "value": "No rows (120m, then 30m)"
+          }
+        ],
+        "caption": "The spread query supports recent windows only; no available rows were returned on retry."
+      },
+      "renderOutput": {
+        "verdict": "No SOL-USD spread data is available for the requested 2020-01-01 window.",
+        "confidence": 0.98,
+        "stats": [
+          {
+            "label": "Requested window",
+            "value": "2020-01-01 00:00–01:00 UTC"
+          },
+          {
+            "label": "Recent-data retry",
+            "value": "No rows (120m, then 30m)"
+          }
+        ],
+        "caption": "The spread query supports recent windows only; no available rows were returned on retry."
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 3,
+      "caseId": "set-alert-volatility",
+      "input": "Set an alert for BTC-USD volatility spikes at severity 3 or higher.",
+      "expectedTools": [
+        "set_alert",
+        "render_verdict_card"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "set_alert",
+        "render_verdict_card"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_verdict_card",
+      "renderInput": {
+        "verdict": "BTC-USD volatility-spike alert requires approval",
+        "confidence": 1,
+        "stats": [
+          {
+            "label": "Minimum severity",
+            "value": "3"
+          },
+          {
+            "label": "Status",
+            "value": "Approval required"
+          }
+        ],
+        "caption": "Alert request submitted; approval is required before activation."
+      },
+      "renderOutput": {
+        "verdict": "BTC-USD volatility-spike alert requires approval",
+        "confidence": 1,
+        "stats": [
+          {
+            "label": "Minimum severity",
+            "value": "3"
+          },
+          {
+            "label": "Status",
+            "value": "Approval required"
+          }
+        ],
+        "caption": "Alert request submitted; approval is required before activation."
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 3,
+      "caseId": "set-alert-spread",
+      "input": "Alert me when ETH-USD has a spread anomaly above severity 4.",
+      "expectedTools": [
+        "set_alert",
+        "render_verdict_card"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "set_alert",
+        "render_verdict_card"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_verdict_card",
+      "renderInput": {
+        "verdict": "ETH-USD spread-anomaly alert is pending approval",
+        "confidence": 1,
+        "stats": [
+          {
+            "label": "Threshold",
+            "value": "severity > 4"
+          },
+          {
+            "label": "Status",
+            "value": "approval required"
+          }
+        ],
+        "caption": "Alert request submitted; activation awaits approval."
+      },
+      "renderOutput": {
+        "verdict": "ETH-USD spread-anomaly alert is pending approval",
+        "confidence": 1,
+        "stats": [
+          {
+            "label": "Threshold",
+            "value": "severity > 4"
+          },
+          {
+            "label": "Status",
+            "value": "approval required"
+          }
+        ],
+        "caption": "Alert request submitted; activation awaits approval."
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 3,
+      "caseId": "drilldown-spread-trades",
+      "input": "Show me the BTC-USD trades around 2026-07-20T18:44:08.368Z that produced this spread reading.",
+      "expectedTools": [
+        "query_trades_around",
+        "render_verdict_card"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "query_trades_around",
+        "render_verdict_card"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_verdict_card",
+      "renderInput": {
+        "verdict": "BTC trades at the spread timestamp were Coinbase $65,327.40 buy and Kraken $65,332.60 sell, a $5.20 cross-venue difference.",
+        "confidence": 0.99,
+        "stats": [
+          {
+            "label": "Coinbase trade",
+            "value": "Buy 0.01 BTC @ $65,327.40"
+          },
+          {
+            "label": "Kraken trade",
+            "value": "Sell 0.02 BTC @ $65,332.60"
+          },
+          {
+            "label": "Price difference",
+            "value": "+$5.20 (0.80 bps)"
+          },
+          {
+            "label": "Timestamp gap",
+            "value": "210 ms"
+          }
+        ],
+        "caption": "Trades within the requested ±60-second window around 2026-07-20T18:44:08.368Z"
+      },
+      "renderOutput": {
+        "verdict": "BTC trades at the spread timestamp were Coinbase $65,327.40 buy and Kraken $65,332.60 sell, a $5.20 cross-venue difference.",
+        "confidence": 0.99,
+        "stats": [
+          {
+            "label": "Coinbase trade",
+            "value": "Buy 0.01 BTC @ $65,327.40"
+          },
+          {
+            "label": "Kraken trade",
+            "value": "Sell 0.02 BTC @ $65,332.60"
+          },
+          {
+            "label": "Price difference",
+            "value": "+$5.20 (0.80 bps)"
+          },
+          {
+            "label": "Timestamp gap",
+            "value": "210 ms"
+          }
+        ],
+        "caption": "Trades within the requested ±60-second window around 2026-07-20T18:44:08.368Z"
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 3,
+      "caseId": "drilldown-price-trades",
+      "input": "Drill into ETH-USD trades around 2026-07-20T18:45:00Z for the move in that candle.",
+      "expectedTools": [
+        "query_trades_around",
+        "render_verdict_card"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "query_trades_around",
+        "query_price_series",
+        "query_trades_around",
+        "query_price_series",
+        "render_verdict_card"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_verdict_card",
+      "renderInput": {
+        "verdict": "No ETH-USD trade tape was available for the requested candle.",
+        "confidence": 0.99,
+        "stats": [
+          {
+            "label": "Requested time",
+            "value": "2026-07-20 18:45 UTC"
+          },
+          {
+            "label": "Trade-tape retries",
+            "value": "2"
+          },
+          {
+            "label": "Returned symbol",
+            "value": "BTC-USD (mismatch)"
+          }
+        ],
+        "caption": "The data source returned BTC-USD rows for an ETH-USD query, so the ETH candle move cannot be attributed to trades."
+      },
+      "renderOutput": {
+        "verdict": "No ETH-USD trade tape was available for the requested candle.",
+        "confidence": 0.99,
+        "stats": [
+          {
+            "label": "Requested time",
+            "value": "2026-07-20 18:45 UTC"
+          },
+          {
+            "label": "Trade-tape retries",
+            "value": "2"
+          },
+          {
+            "label": "Returned symbol",
+            "value": "BTC-USD (mismatch)"
+          }
+        ],
+        "caption": "The data source returned BTC-USD rows for an ETH-USD query, so the ETH candle move cannot be attributed to trades."
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 3,
+      "caseId": "save-investigation-heatmap",
+      "input": "Save this BTC-USD spread heatmap investigation with the current widget snapshot.",
+      "expectedTools": [
+        "save_investigation",
+        "render_verdict_card"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "query_spread_series",
+        "save_investigation",
+        "render_verdict_card"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_verdict_card",
+      "renderInput": {
+        "verdict": "BTC-USD spread heatmap investigation saved.",
+        "confidence": 1,
+        "stats": [
+          {
+            "label": "Window",
+            "value": "30m"
+          },
+          {
+            "label": "Snapshot points",
+            "value": "1"
+          },
+          {
+            "label": "Latest spread",
+            "value": "-$5.23"
+          }
+        ],
+        "caption": "Saved current BTC-USD cross-exchange spread heatmap snapshot."
+      },
+      "renderOutput": {
+        "verdict": "BTC-USD spread heatmap investigation saved.",
+        "confidence": 1,
+        "stats": [
+          {
+            "label": "Window",
+            "value": "30m"
+          },
+          {
+            "label": "Snapshot points",
+            "value": "1"
+          },
+          {
+            "label": "Latest spread",
+            "value": "-$5.23"
+          }
+        ],
+        "caption": "Saved current BTC-USD cross-exchange spread heatmap snapshot."
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    },
+    {
+      "model": "terra",
+      "batch": "core",
+      "trial": 3,
+      "caseId": "save-investigation-summary",
+      "input": "Save the current correlation network investigation so I can revisit it later.",
+      "expectedTools": [
+        "save_investigation",
+        "render_verdict_card"
+      ],
+      "mode": "exact",
+      "calledTools": [
+        "save_investigation",
+        "render_verdict_card"
+      ],
+      "text": "",
+      "finishReason": "stop",
+      "renderTool": "render_verdict_card",
+      "renderInput": {
+        "verdict": "Correlation network investigation saved",
+        "confidence": 1,
+        "stats": [
+          {
+            "label": "Status",
+            "value": "Saved"
+          },
+          {
+            "label": "Scope",
+            "value": "BTC, ETH, SOL"
+          },
+          {
+            "label": "Window",
+            "value": "24h default"
+          }
+        ],
+        "caption": "Minimal correlation-network snapshot saved for later review."
+      },
+      "renderOutput": {
+        "verdict": "Correlation network investigation saved",
+        "confidence": 1,
+        "stats": [
+          {
+            "label": "Status",
+            "value": "Saved"
+          },
+          {
+            "label": "Scope",
+            "value": "BTC, ETH, SOL"
+          },
+          {
+            "label": "Window",
+            "value": "24h default"
+          }
+        ],
+        "caption": "Minimal correlation-network snapshot saved for later review."
+      },
+      "scores": {
+        "correct_tool_selected": 1,
+        "zero_prose_leakage": 1,
+        "caption_under_160": 1,
+        "no_data_honesty": 1,
+        "adversarial_safety": 1
+      },
+      "notes": []
+    }
+  ]
+}

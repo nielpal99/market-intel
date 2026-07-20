@@ -25,6 +25,7 @@ type TrialOutput = {
   finishReason: string;
   renderTool?: string;
   renderInput?: Record<string, unknown>;
+  renderOutput?: Record<string, unknown>;
   scores: Record<string, number>;
   notes: string[];
   error?: string;
@@ -136,6 +137,16 @@ function sampleRows(name: string, evalCase: MarketIntelEvalCase) {
   }
 }
 
+function noDataVerdictOutput(subject: string) {
+  return {
+    __renderAs: "verdict_card",
+    verdict: `No data is available for ${subject} in the requested window.`,
+    confidence: 0.99,
+    stats: [{ label: "Rows", value: "0" }],
+    caption: "No visualization rendered because the underlying query returned zero rows.",
+  };
+}
+
 function makeEvalTools(evalCase: MarketIntelEvalCase): ToolSet {
   const realTools = buildMarketIntelTools(`braintrust-eval-${evalCase.id}`);
   return Object.fromEntries(
@@ -149,14 +160,24 @@ function makeEvalTools(evalCase: MarketIntelEvalCase): ToolSet {
             if (name.startsWith("query_")) return sampleRows(name, evalCase);
             if (name === "save_investigation") return { saved: true, eval_stub: true };
             if (name === "set_alert") return { approval_required: true, eval_stub: true };
-            if (name === "render_candlestick") return { input, ohlc: sampleRows("query_price_series", evalCase) };
-            if (name === "render_spread_heatmap") return { input, rows: sampleRows("query_spread_series", evalCase) };
+            if (name === "render_candlestick") {
+              const ohlc = sampleRows("query_price_series", evalCase);
+              if (ohlc.length === 0) return noDataVerdictOutput("the requested price series");
+              return { input, ohlc };
+            }
+            if (name === "render_spread_heatmap") {
+              const rows = sampleRows("query_spread_series", evalCase);
+              if (rows.length === 0) return noDataVerdictOutput("the requested spread series");
+              return { input, rows };
+            }
             if (name === "render_volatility_bands") return { input, ohlc: sampleRows("query_price_series", evalCase) };
             if (name === "render_correlation_network") {
+              const rows = sampleRows("query_correlations", evalCase);
+              if (rows.length === 0) return noDataVerdictOutput("the requested correlation series");
               return {
                 input,
                 symbols: ["BTC-USD", "ETH-USD", "SOL-USD"],
-                rows: sampleRows("query_correlations", evalCase),
+                rows,
                 correlations: [
                   { source: "BTC-USD", target: "ETH-USD", correlation: 0.76, samples: 60, series: [] },
                   { source: "BTC-USD", target: "SOL-USD", correlation: 0.71, samples: 60, series: [] },
@@ -182,18 +203,36 @@ function toolInput(call: unknown): Record<string, unknown> | undefined {
   return c.input ?? c.args;
 }
 
+function toolResultOutput(result: unknown): Record<string, unknown> | undefined {
+  const r = result as { output?: Record<string, unknown>; result?: Record<string, unknown> };
+  return r.output ?? r.result;
+}
+
+function isVerdictCardShape(value?: Record<string, unknown>) {
+  return value?.__renderAs === "verdict_card" || typeof value?.verdict === "string";
+}
+
 function hasRawJsonText(text: string) {
   const trimmed = text.trim();
   return trimmed.startsWith("{") || trimmed.startsWith("[") || /"tool(Call|Name|Result|Input)"\s*:/.test(trimmed);
 }
 
-function scoreCase(evalCase: MarketIntelEvalCase, calledTools: string[], text: string, renderInput?: Record<string, unknown>) {
+function scoreCase(
+  evalCase: MarketIntelEvalCase,
+  calledTools: string[],
+  text: string,
+  renderInput?: Record<string, unknown>,
+  renderOutput?: Record<string, unknown>
+) {
   const notes: string[] = [];
   const expected = evalCase.expectedTools;
+  const effectiveCalledTools = isVerdictCardShape(renderOutput) && !calledTools.includes("render_verdict_card")
+    ? [...calledTools, "render_verdict_card"]
+    : calledTools;
   const exactToolSelected =
     evalCase.mode === "exact"
-      ? expected.every((name) => calledTools.includes(name))
-      : expected.some((name) => calledTools.includes(name)) || calledTools.some((name) => RENDER_TOOLS.has(name));
+      ? expected.every((name) => effectiveCalledTools.includes(name))
+      : expected.some((name) => effectiveCalledTools.includes(name)) || effectiveCalledTools.some((name) => RENDER_TOOLS.has(name));
   if (!exactToolSelected) notes.push(`Expected ${expected.join(", ")}; saw ${calledTools.join(", ") || "none"}`);
 
   const zeroProseLeakage = text.trim().length === 0 ? 1 : 0;
@@ -205,9 +244,9 @@ function scoreCase(evalCase: MarketIntelEvalCase, calledTools: string[], text: s
 
   let noDataHonesty = 1;
   if (evalCase.noData) {
-    const verdict = `${renderInput?.verdict ?? ""} ${renderInput?.caption ?? ""}`.toLowerCase();
+    const verdict = `${renderInput?.verdict ?? ""} ${renderInput?.caption ?? ""} ${renderOutput?.verdict ?? ""} ${renderOutput?.caption ?? ""}`.toLowerCase();
     noDataHonesty =
-      calledTools.includes("render_verdict_card") && /(no|not|unavailable|empty|insufficient|couldn't|cannot|can't|data)/.test(verdict) ? 1 : 0;
+      effectiveCalledTools.includes("render_verdict_card") && /(no|not|unavailable|empty|insufficient|couldn't|cannot|can't|data)/.test(verdict) ? 1 : 0;
     if (!noDataHonesty) notes.push("No-data case did not render an honest verdict card");
   }
 
@@ -239,12 +278,19 @@ async function runOne(evalCase: MarketIntelEvalCase, modelName: ModelName, batch
       stopWhen: stepCountIs(15),
     });
 
-    const [calls, text, finishReason] = await Promise.all([result.toolCalls, result.text, result.finishReason]);
+    const [calls, toolResults, text, finishReason] = await Promise.all([
+      result.toolCalls,
+      result.toolResults,
+      result.text,
+      result.finishReason,
+    ]);
     const calledTools = calls.map(toolName);
     const lastRender = [...calls].reverse().find((call) => RENDER_TOOLS.has(toolName(call)));
     const renderTool = lastRender ? toolName(lastRender) : undefined;
     const renderInput = lastRender ? toolInput(lastRender) : undefined;
-    const scored = scoreCase(evalCase, calledTools, text, renderInput);
+    const lastRenderResult = [...toolResults].reverse().find((result) => RENDER_TOOLS.has(toolName(result)));
+    const renderOutput = lastRenderResult ? toolResultOutput(lastRenderResult) : undefined;
+    const scored = scoreCase(evalCase, calledTools, text, renderInput, renderOutput);
     return {
       model: modelName,
       batch,
@@ -258,6 +304,7 @@ async function runOne(evalCase: MarketIntelEvalCase, modelName: ModelName, batch
       finishReason,
       renderTool,
       renderInput,
+      renderOutput,
       ...scored,
     };
   } catch (err) {
@@ -297,14 +344,15 @@ async function logBraintrust(experiment: Awaited<ReturnType<typeof maybeBraintru
   if (!experiment) return;
   experiment.log({
     input: result.input,
-    output: {
-      calledTools: result.calledTools,
-      text: result.text,
-      renderTool: result.renderTool,
-      renderInput: result.renderInput,
-      finishReason: result.finishReason,
-      error: result.error,
-    },
+      output: {
+        calledTools: result.calledTools,
+        text: result.text,
+        renderTool: result.renderTool,
+        renderInput: result.renderInput,
+        renderOutput: result.renderOutput,
+        finishReason: result.finishReason,
+        error: result.error,
+      },
     expected: result.expectedTools,
     scores: result.scores,
     metadata: {
