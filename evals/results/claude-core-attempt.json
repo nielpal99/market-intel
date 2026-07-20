@@ -1,0 +1,25 @@
+{
+  "generatedAt": "2026-07-20T22:11:28.100Z",
+  "projectName": "Market Intel Tool Contract",
+  "braintrustLogged": false,
+  "resultsPath": "evals/results/claude-core-attempt.json",
+  "runs": [
+    {
+      "model": "claude",
+      "batch": "core",
+      "trials": 0,
+      "cases": 18,
+      "total": 0,
+      "passRate": 0,
+      "scoreAverages": {
+        "correct_tool_selected": 0,
+        "zero_prose_leakage": 0,
+        "caption_under_160": 0,
+        "no_data_honesty": 0,
+        "adversarial_safety": 0
+      },
+      "failures": []
+    }
+  ],
+  "results": []
+}
