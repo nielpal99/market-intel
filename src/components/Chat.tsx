@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { useTriggerChatTransport } from "@trigger.dev/sdk/chat/react";
 import { lastAssistantMessageIsCompleteWithApprovalResponses } from "ai";
@@ -9,6 +9,7 @@ import { Candlestick } from "./Candlestick";
 import { SpreadHeatmap } from "./SpreadHeatmap";
 import { VolatilityBands } from "./VolatilityBands";
 import { CorrelationNetwork } from "./CorrelationNetwork";
+import { HITLCard, HITLApproval } from "./HITLCard";
 
 const RENDER_COMPONENTS: Record<string, (props: { data: any }) => JSX.Element> = {
   "tool-render_verdict_card": VerdictCard,
@@ -21,6 +22,7 @@ const RENDER_COMPONENTS: Record<string, (props: { data: any }) => JSX.Element> =
 export function Chat() {
   const [chatId] = useState(() => crypto.randomUUID());
   const [input, setInput] = useState("");
+  const [pendingApprovals, setPendingApprovals] = useState<HITLApproval[]>([]);
 
   const transport = useTriggerChatTransport({
     task: "market-intel",
@@ -40,6 +42,38 @@ export function Chat() {
 
   const busy = status === "submitted" || status === "streaming";
 
+  // Poll the in-process route (real Neon DB) for run-less alert-fanout
+  // notifications. In-session set_alert approvals carry a tool_call_id and are
+  // surfaced + resolved inline in the message stream (addToolApprovalResponse),
+  // so they're filtered out here to avoid a duplicate, wrong-path surface.
+  useEffect(() => {
+    const fetchPending = async () => {
+      try {
+        const res = await fetch("/api/hitl/pending");
+        if (!res.ok) return;
+        const rows = await res.json();
+        setPendingApprovals(rows.filter((r: any) => r.kind === "notification"));
+      } catch {
+        // swallow transient poll errors
+      }
+    };
+
+    fetchPending();
+    const interval = setInterval(fetchPending, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const resolveApproval = async (id: string, status: "approved" | "denied") => {
+    const res = await fetch("/api/hitl/resolve", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, status }),
+    });
+    if (res.ok) {
+      setPendingApprovals((prev) => prev.filter((a) => a.id !== id));
+    }
+  };
+
   const submit = () => {
     if (!input.trim() || busy) return;
     sendMessage({ text: input });
@@ -48,6 +82,19 @@ export function Chat() {
 
   return (
     <section style={{ display: "flex", flexDirection: "column", gap: 16, marginTop: 24 }}>
+      {pendingApprovals.length > 0 && (
+        <div>
+          {pendingApprovals.map((a) => (
+            <HITLCard
+              key={a.id}
+              approval={a}
+              onApprove={(id) => resolveApproval(id, "approved")}
+              onDeny={(id) => resolveApproval(id, "denied")}
+            />
+          ))}
+        </div>
+      )}
+
       <div style={{ display: "flex", gap: 8 }}>
         <input
           value={input}
@@ -65,6 +112,7 @@ export function Chat() {
           Send
         </button>
       </div>
+
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         {messages.map((m) => (
           <div key={m.id} style={{ padding: 12, borderRadius: 8, background: m.role === "user" ? "#1f2937" : "#111827" }}>
