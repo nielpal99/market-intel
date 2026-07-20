@@ -50,15 +50,111 @@ async function fetchSpreadSeries(symbol: string, minutes: number) {
   );
 }
 
-async function fetchCorrelations(symbols: string[]) {
+async function fetchCorrelations(symbols: string[], minutes: number = 720) {
   return chQuery(
     `SELECT symbol, minute, argMaxMerge(close) AS close
      FROM ohlc_1m_mv
      WHERE symbol IN ({symbols:Array(String)})
+       AND minute > now() - INTERVAL {minutes:UInt16} MINUTE
      GROUP BY symbol, minute
      ORDER BY symbol, minute`,
-    { symbols }
+    { symbols, minutes }
   );
+}
+
+type CorrelationRow = {
+  symbol: string;
+  minute: string;
+  close: number;
+};
+
+function pearson(xs: number[], ys: number[]): number | null {
+  const n = Math.min(xs.length, ys.length);
+  if (n < 3) return null;
+
+  let sumX = 0;
+  let sumY = 0;
+  for (let i = 0; i < n; i++) {
+    sumX += xs[i];
+    sumY += ys[i];
+  }
+  const meanX = sumX / n;
+  const meanY = sumY / n;
+
+  let covariance = 0;
+  let varianceX = 0;
+  let varianceY = 0;
+  for (let i = 0; i < n; i++) {
+    const dx = xs[i] - meanX;
+    const dy = ys[i] - meanY;
+    covariance += dx * dy;
+    varianceX += dx * dx;
+    varianceY += dy * dy;
+  }
+
+  const denom = Math.sqrt(varianceX * varianceY);
+  return denom > 0 ? covariance / denom : null;
+}
+
+function computeCorrelationNetwork(rows: CorrelationRow[], symbols: string[], rollingSamples: number = 60) {
+  const closesBySymbol = new Map<string, Map<string, number>>();
+  for (const row of rows) {
+    const close = Number(row.close);
+    if (!Number.isFinite(close) || close <= 0) continue;
+    if (!closesBySymbol.has(row.symbol)) closesBySymbol.set(row.symbol, new Map());
+    closesBySymbol.get(row.symbol)!.set(row.minute, close);
+  }
+
+  const returnsBySymbol = new Map<string, Map<string, number>>();
+  for (const symbol of symbols) {
+    const points = Array.from(closesBySymbol.get(symbol)?.entries() ?? [])
+      .sort(([a], [b]) => a.localeCompare(b));
+    const returns = new Map<string, number>();
+    for (let i = 1; i < points.length; i++) {
+      const previous = points[i - 1][1];
+      const current = points[i][1];
+      if (previous > 0 && current > 0) {
+        returns.set(points[i][0], Math.log(current / previous));
+      }
+    }
+    returnsBySymbol.set(symbol, returns);
+  }
+
+  const correlations: Array<{ source: string; target: string; correlation: number; samples: number }> = [];
+  for (let i = 0; i < symbols.length; i++) {
+    for (let j = i + 1; j < symbols.length; j++) {
+      const source = symbols[i];
+      const target = symbols[j];
+      const sourceReturns = returnsBySymbol.get(source) ?? new Map();
+      const targetReturns = returnsBySymbol.get(target) ?? new Map();
+      const xs: number[] = [];
+      const ys: number[] = [];
+      Array.from(sourceReturns.entries())
+        .sort(([a], [b]) => a.localeCompare(b))
+        .forEach(([minute, sourceReturn]) => {
+          const targetReturn = targetReturns.get(minute);
+          if (targetReturn !== undefined) {
+            xs.push(sourceReturn);
+            ys.push(targetReturn);
+          }
+        });
+      const start = Math.max(0, xs.length - rollingSamples);
+      const rollingXs = xs.slice(start);
+      const rollingYs = ys.slice(start);
+      const correlation = pearson(rollingXs, rollingYs);
+      if (correlation !== null) {
+        correlations.push({ source, target, correlation, samples: rollingXs.length });
+      }
+    }
+  }
+
+  return {
+    symbols,
+    rows,
+    correlations,
+    rollingSamples,
+    pointsBySymbol: Object.fromEntries(symbols.map((symbol) => [symbol, closesBySymbol.get(symbol)?.size ?? 0])),
+  };
 }
 
 // Built per turn: the model has no clock, so relative windows ("last hour")
@@ -130,8 +226,8 @@ export function buildMarketIntelTools(chatId: string, userId: string = DEMO_USER
 
   const query_correlations = tool({
     description: "Fetch close prices for multiple symbols to compute correlations.",
-    inputSchema: z.object({ symbols: z.array(SYMBOLS).max(3) }),
-    execute: async ({ symbols }) => fetchCorrelations(symbols),
+    inputSchema: z.object({ symbols: z.array(SYMBOLS).max(3), minutes: z.number().max(1440).default(720) }),
+    execute: async ({ symbols, minutes }) => fetchCorrelations(symbols, minutes),
   });
 
   const render_candlestick = tool({
@@ -189,8 +285,10 @@ export function buildMarketIntelTools(chatId: string, userId: string = DEMO_USER
       caption: z.string().max(160),
     }),
     execute: async (input) => {
-      const rows = await fetchCorrelations(input.symbols);
-      return { input, rows };
+      const lookbackMinutes = Math.min(Math.max(Math.round(input.hours * 60), 60), 1440);
+      const rollingSamples = 60;
+      const rows = await fetchCorrelations(input.symbols, lookbackMinutes) as CorrelationRow[];
+      return { input: { ...input, lookbackMinutes, rollingSamples }, ...computeCorrelationNetwork(rows, input.symbols, rollingSamples) };
     },
   });
 
