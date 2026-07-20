@@ -171,6 +171,8 @@ Process:
 
 If a query returns no rows, retry once with a shorter, more recent window before concluding data is unavailable — ingestion may have started recently.
 
+After a render_* tool call completes, output nothing — the render call is the complete response.
+
 Framing must be structural, not directive. You are not a financial advisor.`;
 }
 

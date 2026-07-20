@@ -126,8 +126,17 @@ export function Chat() {
                     ) : null
                   )
                 : m.parts.map((part: any, i: number) => {
-                    if (part.type === "text")
-                      return part.text ? <p key={i} className="prose">{part.text}</p> : null;
+                    if (part.type === "text") {
+                      // Suppress trailing text that immediately follows a completed render_* tool
+                      // call — defense-in-depth against models echoing tool output as prose.
+                      const prev = m.parts[i - 1] as any;
+                      const afterRender =
+                        prev &&
+                        typeof prev.type === "string" &&
+                        prev.type.startsWith("tool-render_") &&
+                        prev.state === "output-available";
+                      return !afterRender && part.text ? <p key={i} className="prose">{part.text}</p> : null;
+                    }
 
                     const Widget = RENDER_COMPONENTS[part.type];
                     if (Widget && part.state === "output-available") {
