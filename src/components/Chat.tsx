@@ -10,6 +10,8 @@ import { SpreadHeatmap } from "./SpreadHeatmap";
 import { VolatilityBands } from "./VolatilityBands";
 import { CorrelationNetwork } from "./CorrelationNetwork";
 import { HITLCard, HITLApproval } from "./HITLCard";
+import { SignalTrace } from "./SignalTrace";
+import { useThroughput } from "@/lib/useThroughput";
 
 const RENDER_COMPONENTS: Record<string, (props: { data: any }) => JSX.Element> = {
   "tool-render_verdict_card": VerdictCard,
@@ -19,10 +21,13 @@ const RENDER_COMPONENTS: Record<string, (props: { data: any }) => JSX.Element> =
   "tool-render_correlation_network": CorrelationNetwork,
 };
 
+const WATCHED = ["BTC-USD", "ETH-USD", "SOL-USD"];
+
 export function Chat() {
   const [chatId] = useState(() => crypto.randomUUID());
   const [input, setInput] = useState("");
   const [pendingApprovals, setPendingApprovals] = useState<HITLApproval[]>([]);
+  const throughput = useThroughput();
 
   const transport = useTriggerChatTransport({
     task: "market-intel",
@@ -54,10 +59,9 @@ export function Chat() {
         const rows = await res.json();
         setPendingApprovals(rows.filter((r: any) => r.kind === "notification"));
       } catch {
-        // swallow transient poll errors
+        /* swallow transient poll errors */
       }
     };
-
     fetchPending();
     const interval = setInterval(fetchPending, 5000);
     return () => clearInterval(interval);
@@ -81,9 +85,26 @@ export function Chat() {
   };
 
   return (
-    <section style={{ display: "flex", flexDirection: "column", gap: 16, marginTop: 24 }}>
-      {pendingApprovals.length > 0 && (
-        <div>
+    <section className="console">
+      <header className="status-strip">
+        <div className="wordmark">MARKET<b>INTEL</b></div>
+        <div className="watched">
+          {WATCHED.map((s) => (
+            <span key={s}>{s}</span>
+          ))}
+        </div>
+        <div className={`beacon ${throughput.live ? "on" : "off"}`}>
+          <span className="dot" />
+          <span className="label">{throughput.live ? "Live feed" : "Feed idle"}</span>
+        </div>
+      </header>
+
+      <div className="stage">
+        <aside className="rail">
+          <SignalTrace buckets={throughput.buckets} live={throughput.live} />
+        </aside>
+
+        <div className="feed">
           {pendingApprovals.map((a) => (
             <HITLCard
               key={a.id}
@@ -92,76 +113,94 @@ export function Chat() {
               onDeny={(id) => resolveApproval(id, "denied")}
             />
           ))}
-        </div>
-      )}
 
-      <div style={{ display: "flex", gap: 8 }}>
+          {messages.map((m) => (
+            <div key={m.id}>
+              {m.role === "user"
+                ? m.parts.map((part: any, i: number) =>
+                    part.type === "text" ? (
+                      <div key={i} className="query-line">
+                        <span className="caret">▸</span>
+                        <span className="text">{part.text}</span>
+                      </div>
+                    ) : null
+                  )
+                : m.parts.map((part: any, i: number) => {
+                    if (part.type === "text")
+                      return part.text ? <p key={i} className="prose">{part.text}</p> : null;
+
+                    const Widget = RENDER_COMPONENTS[part.type];
+                    if (Widget && part.state === "output-available") {
+                      const label = part.type.replace("tool-render_", "").replace(/_/g, " ");
+                      return (
+                        <div key={i} className="readout">
+                          <div className="readout-head">
+                            <span className="tag">Readout</span>
+                            <span>· {label}</span>
+                          </div>
+                          <div className="readout-body">
+                            <Widget data={part.output} />
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    if (part.type === "tool-set_alert" && part.state === "approval-requested") {
+                      return (
+                        <div key={i} className="approval">
+                          <div className="approval-head">Confirm · set alert</div>
+                          <p className="prose" style={{ marginBottom: 12 }}>
+                            Watch {part.input?.symbol} for {part.input?.event_type} at severity ≥{" "}
+                            {part.input?.min_severity}?
+                          </p>
+                          <div className="signal-actions">
+                            <button
+                              type="button"
+                              className="btn btn-ice"
+                              onClick={() => addToolApprovalResponse({ id: part.approval.id, approved: true })}
+                            >
+                              Set alert
+                            </button>
+                            <button
+                              type="button"
+                              className="btn btn-ghost"
+                              onClick={() => addToolApprovalResponse({ id: part.approval.id, approved: false })}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    if (typeof part.type === "string" && part.type.startsWith("tool-query_")) {
+                      const done = part.state === "output-available";
+                      return (
+                        <div key={i} className={`pill ${done ? "done" : ""}`}>
+                          <span>{done ? "▪" : "▫"}</span>
+                          <span>{part.type.replace("tool-", "")}</span>
+                        </div>
+                      );
+                    }
+
+                    return null;
+                  })}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="composer">
+        <span className="prompt">⌘</span>
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && submit()}
-          placeholder="Ask: Show me BTC over the last hour"
-          style={{ flex: 1, padding: 12, borderRadius: 8, border: "1px solid #333", background: "#111", color: "#fff" }}
+          placeholder="query the tape — e.g. show me ETH over the last hour"
         />
-        <button
-          type="button"
-          onClick={submit}
-          disabled={busy}
-          style={{ padding: "0 16px", borderRadius: 8, background: busy ? "#334155" : "#3b82f6", border: "none", color: "#fff" }}
-        >
-          Send
+        <button type="button" onClick={submit} disabled={busy}>
+          {busy ? "Reading…" : "Send"}
         </button>
-      </div>
-
-      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        {messages.map((m) => (
-          <div key={m.id} style={{ padding: 12, borderRadius: 8, background: m.role === "user" ? "#1f2937" : "#111827" }}>
-            {m.parts.map((part: any, i: number) => {
-              if (part.type === "text") return <p key={i}>{part.text}</p>;
-
-              const Widget = RENDER_COMPONENTS[part.type];
-              if (Widget && part.state === "output-available") {
-                return <Widget key={i} data={part.output} />;
-              }
-
-              if (part.type === "tool-set_alert" && part.state === "approval-requested") {
-                return (
-                  <div key={i} style={{ border: "1px solid #b45309", borderRadius: 8, padding: 12 }}>
-                    <p style={{ margin: "0 0 8px" }}>
-                      Create alert: {part.input?.symbol} / {part.input?.event_type} (min severity {part.input?.min_severity})?
-                    </p>
-                    <div style={{ display: "flex", gap: 8 }}>
-                      <button
-                        type="button"
-                        onClick={() => addToolApprovalResponse({ id: part.approval.id, approved: true })}
-                        style={{ padding: "4px 12px", borderRadius: 6, background: "#16a34a", border: "none", color: "#fff" }}
-                      >
-                        Approve
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => addToolApprovalResponse({ id: part.approval.id, approved: false })}
-                        style={{ padding: "4px 12px", borderRadius: 6, background: "#dc2626", border: "none", color: "#fff" }}
-                      >
-                        Deny
-                      </button>
-                    </div>
-                  </div>
-                );
-              }
-
-              if (typeof part.type === "string" && part.type.startsWith("tool-query_")) {
-                return (
-                  <p key={i} style={{ fontSize: 12, color: "#6b7280" }}>
-                    {part.state === "output-available" ? "✓" : "…"} {part.type.replace("tool-", "")}
-                  </p>
-                );
-              }
-
-              return null;
-            })}
-          </div>
-        ))}
       </div>
     </section>
   );

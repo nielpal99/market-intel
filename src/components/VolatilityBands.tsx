@@ -5,21 +5,13 @@ export function VolatilityBands({ data }: { data: any }) {
   const closes = rows.map((r) => Number(r.close)).filter((n) => Number.isFinite(n));
 
   if (closes.length < 2) {
-    return (
-      <div>
-        <div style={{ fontWeight: 600 }}>Volatility Bands</div>
-        <p style={{ fontSize: 13, color: "#6b7280", marginTop: 8 }}>
-          Not enough price data to plot bands yet.
-        </p>
-      </div>
-    );
+    return <p className="readout-caption">Not enough price data to plot bands yet.</p>;
   }
 
   const W = 600;
   const H = 200;
   const PAD = 8;
   const n = closes.length;
-  // Trailing window for the rolling stats — adaptive to series length.
   const period = Math.max(2, Math.min(20, Math.floor(n / 3)));
 
   const mean: number[] = [];
@@ -43,35 +35,30 @@ export function VolatilityBands({ data }: { data: any }) {
   const y = (v: number) => PAD + (1 - (v - lo) / span) * (H - 2 * PAD);
   const line = (arr: number[]) => arr.map((v, i) => `${i === 0 ? "M" : "L"}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ");
 
-  // Shaded envelope: upper band forward, lower band back, closed.
   const bandArea =
     line(upper) +
     " " +
-    lower.map((v, i) => `L${x(n - 1 - i).toFixed(1)},${y(lower[n - 1 - i]).toFixed(1)}`).join(" ") +
+    lower.map((_v, i) => `L${x(n - 1 - i).toFixed(1)},${y(lower[n - 1 - i]).toFixed(1)}`).join(" ") +
     " Z";
 
-  const first = closes[0];
   const last = closes[n - 1];
-  const up = last >= first;
-  const priceColor = up ? "#10b981" : "#ef4444";
+  const up = last >= closes[0];
+  const priceColor = up ? "var(--gain)" : "var(--loss)";
 
   return (
     <div>
-      <div style={{ fontWeight: 600 }}>
-        {data?.input?.symbol} — Volatility Bands
-      </div>
-      <svg width="100%" height={H} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ marginTop: 8, background: "#0b1220", borderRadius: 6 }}>
-        <path d={bandArea} fill="rgba(59, 130, 246, 0.15)" stroke="none" />
-        <path d={line(upper)} fill="none" stroke="#3b82f6" strokeWidth={1} strokeOpacity={0.6} vectorEffect="non-scaling-stroke" />
-        <path d={line(lower)} fill="none" stroke="#3b82f6" strokeWidth={1} strokeOpacity={0.6} vectorEffect="non-scaling-stroke" />
-        <path d={line(mean)} fill="none" stroke="#64748b" strokeWidth={1} strokeDasharray="4 3" vectorEffect="non-scaling-stroke" />
+      <svg width="100%" height={H} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ background: "var(--field)", borderRadius: 4 }}>
+        <path d={bandArea} fill="rgba(116, 199, 214, 0.12)" stroke="none" />
+        <path d={line(upper)} fill="none" stroke="var(--ice)" strokeWidth={1} strokeOpacity={0.6} vectorEffect="non-scaling-stroke" />
+        <path d={line(lower)} fill="none" stroke="var(--ice)" strokeWidth={1} strokeOpacity={0.6} vectorEffect="non-scaling-stroke" />
+        <path d={line(mean)} fill="none" stroke="var(--mute)" strokeWidth={1} strokeDasharray="4 3" vectorEffect="non-scaling-stroke" />
         <path d={line(closes)} fill="none" stroke={priceColor} strokeWidth={1.5} vectorEffect="non-scaling-stroke" />
       </svg>
-      <div style={{ display: "flex", gap: 16, fontSize: 12, color: "#9ca3af", marginTop: 6 }}>
-        <span>close: {last.toFixed(2)}</span>
-        <span>mean ± 2σ over {period}m window</span>
+      <div className="mono" style={{ display: "flex", gap: 16, fontSize: 12, color: "var(--mute)", marginTop: 8 }}>
+        <span style={{ color: "var(--ink)" }}>{last.toFixed(2)}</span>
+        <span>mean ± 2σ · {period}m window</span>
       </div>
-      {data?.input?.caption && <p style={{ fontSize: 13, color: "#6b7280", marginTop: 4 }}>{data.input.caption}</p>}
+      {data?.input?.caption && <p className="readout-caption">{data.input.caption}</p>}
     </div>
   );
 }

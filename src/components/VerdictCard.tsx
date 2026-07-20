@@ -1,15 +1,25 @@
 export function VerdictCard({ data }: { data: any }) {
+  const confidence = typeof data?.confidence === "number" ? data.confidence : null;
   return (
-    <div style={{ border: "1px solid #374151", borderRadius: 8, padding: 16, background: "#111827" }}>
-      <h3 style={{ margin: "0 0 8px" }}>Verdict</h3>
-      <p style={{ margin: 0, fontSize: 18 }}>{data?.verdict || "No verdict"}</p>
-      <div style={{ marginTop: 12, display: "flex", gap: 16, fontSize: 14, color: "#9ca3af" }}>
-        <span>confidence: {data?.confidence ?? "-"}</span>
+    <div>
+      <p style={{ margin: 0, fontSize: 17, lineHeight: 1.45, color: "var(--ink)" }}>
+        {data?.verdict || "No verdict"}
+      </p>
+      <div style={{ display: "flex", gap: 20, marginTop: 14, alignItems: "baseline", flexWrap: "wrap" }}>
+        {confidence !== null && (
+          <span className="mono" style={{ fontSize: 24, color: "var(--ice)", letterSpacing: "-0.02em" }}>
+            {(confidence * 100).toFixed(0)}
+            <span style={{ fontSize: 12, color: "var(--mute)", marginLeft: 4 }}>% conf</span>
+          </span>
+        )}
         {data?.stats?.map((s: any, i: number) => (
-          <span key={i}>{s.label}: {s.value}</span>
+          <span key={i} className="mono" style={{ fontSize: 13, color: "var(--ink)" }}>
+            <span style={{ color: "var(--mute)" }}>{s.label} </span>
+            {s.value}
+          </span>
         ))}
       </div>
-      {data?.caption && <p style={{ marginTop: 8, fontSize: 13, color: "#6b7280" }}>{data.caption}</p>}
+      {data?.caption && <p className="readout-caption">{data.caption}</p>}
     </div>
   );
 }

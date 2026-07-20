@@ -12,22 +12,22 @@ export function CorrelationNetwork({ data }: { data: any }) {
   }));
   return (
     <div>
-      <div style={{ fontWeight: 600 }}>Correlation Network</div>
-      <svg width={width} height={height} style={{ marginTop: 8 }}>
-        <rect width={width} height={height} fill="#111827" />
+      <svg width="100%" viewBox={`0 0 ${width} ${height}`} style={{ background: "var(--field)", borderRadius: 4 }}>
         {nodes.map((a, i) =>
           nodes.slice(i + 1).map((b, j) => (
-            <line key={`${i}-${j}`} x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke="#374151" strokeWidth={1} />
+            <line key={`${i}-${j}`} x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke="var(--line)" strokeWidth={1} />
           ))
         )}
-        {nodes.map((n, i) => (
+        {nodes.map((n) => (
           <g key={n.symbol} transform={`translate(${n.x}, ${n.y})`}>
-            <circle r={20} fill="#3b82f6" />
-            <text textAnchor="middle" dy={5} fill="#fff" fontSize={10}>{n.symbol}</text>
+            <circle r={22} fill="var(--panel)" stroke="var(--ice)" strokeWidth={1.5} />
+            <text textAnchor="middle" dy={4} fill="var(--ink)" fontSize={10} fontFamily="var(--font-mono)">
+              {n.symbol}
+            </text>
           </g>
         ))}
       </svg>
-      {data?.input?.caption && <p style={{ fontSize: 13, color: "#6b7280" }}>{data.input.caption}</p>}
+      {data?.input?.caption && <p className="readout-caption">{data.input.caption}</p>}
     </div>
   );
 }

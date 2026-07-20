@@ -1,0 +1,245 @@
+/* ── Market Intel token layer ──────────────────────────────────────────────
+   A monitoring-station identity: cool teal-slate instrument field, an ICE
+   accent for readings you asked for, an AMBER accent (scarce) for signals the
+   system pushes unprompted. Red/green are reserved for price direction inside
+   widgets and never used as chrome. */
+:root {
+  --field: #0a1418;   /* deep teal-slate — instrument field at rest */
+  --field-2: #0c1a22;  /* faint band for the rail gutter */
+  --panel: #0f1e27;   /* lifted readout surface */
+  --line: #1b2f3a;    /* hairline structure / gridlines */
+  --ice: #74c7d6;     /* cool accent: requested reading */
+  --ice-dim: #3e6b76;
+  --signal: #f5a524;  /* warm accent: unprompted interrupt (scarce) */
+  --signal-deep: #b9791a;
+  --ink: #dce6ea;     /* cool off-white */
+  --mute: #6e8797;    /* secondary labels */
+  --gain: #35c48a;    /* reserved: price up  */
+  --loss: #f0526a;    /* reserved: price down */
+
+  --font-signage: "Saira Condensed", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
+
+  --radius: 6px;
+  --rail-w: 60px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--field);
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Signage: cockpit-placard labels — uppercase, tracked, condensed. */
+.sig {
+  font-family: var(--font-signage);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-weight: 700;
+}
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+/* ── Console shell ── */
+.console {
+  max-width: 940px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--line);
+  border-right: 1px solid var(--line);
+}
+
+.status-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(180deg, var(--field-2), var(--field));
+}
+.wordmark {
+  font-family: var(--font-signage);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-size: 15px;
+  color: var(--ink);
+}
+.wordmark b { color: var(--ice); font-weight: 700; }
+.watched { display: flex; gap: 14px; font-size: 12px; color: var(--mute); }
+.watched span { font-family: var(--font-mono); letter-spacing: 0.04em; }
+
+/* live/idle indicator */
+.beacon { display: inline-flex; align-items: center; gap: 7px; font-size: 11px; }
+.beacon .dot { width: 7px; height: 7px; border-radius: 50%; }
+.beacon.on .dot { background: var(--ice); box-shadow: 0 0 8px var(--ice); }
+.beacon.off .dot { background: var(--ice-dim); }
+.beacon .label { font-family: var(--font-signage); text-transform: uppercase; letter-spacing: 0.16em; }
+.beacon.on .label { color: var(--ice); }
+.beacon.off .label { color: var(--mute); }
+
+/* ── Stage: rail + feed ── */
+.stage {
+  flex: 1;
+  display: grid;
+  grid-template-columns: var(--rail-w) 1fr;
+  min-height: 0;
+}
+.rail {
+  position: relative;
+  border-right: 1px solid var(--line);
+  background: var(--field-2);
+}
+.feed {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 22px 24px 22px 20px;
+}
+
+/* user query line */
+.query-line {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--mute);
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+.query-line .ts { color: var(--ice-dim); }
+.query-line .caret { color: var(--ice); }
+.query-line .text { color: var(--ink); }
+
+/* ── Readout card (you asked) — cool, docked, calm ── */
+.readout {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  overflow: hidden;
+}
+.readout-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--font-signage);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 11px;
+  color: var(--mute);
+}
+.readout-head .tag { color: var(--ice); }
+.readout-body { padding: 14px; }
+.readout-caption { margin: 10px 0 0; font-size: 12.5px; color: var(--mute); line-height: 1.5; }
+
+/* trailing query pills (query_* tool steps) */
+.pill { font-family: var(--font-mono); font-size: 11px; color: var(--ice-dim); display: flex; gap: 6px; }
+.pill.done { color: var(--ice); }
+
+/* assistant prose */
+.prose { font-size: 14px; line-height: 1.6; color: var(--ink); margin: 0; }
+
+/* ── Signal card (it noticed) — erupts from the rail, amber, offset ── */
+.signal {
+  position: relative;
+  margin-left: calc(var(--rail-w) * -0.5);   /* bleed into the rail gutter */
+  border: 1px solid var(--signal-deep);
+  border-left: 3px solid var(--signal);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(180deg, rgba(245, 165, 36, 0.08), rgba(245, 165, 36, 0.02)),
+    var(--panel);
+  box-shadow: 0 0 0 1px rgba(245, 165, 36, 0.12), 0 8px 24px -12px rgba(245, 165, 36, 0.4);
+  padding: 14px 16px;
+}
+/* the spike notch pointing back into the rail */
+.signal::before {
+  content: "";
+  position: absolute;
+  left: -9px; top: 18px;
+  width: 0; height: 0;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+  border-right: 8px solid var(--signal);
+}
+.signal-head {
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--font-signage);
+  text-transform: uppercase; letter-spacing: 0.14em; font-size: 11.5px;
+  color: var(--signal);
+  margin-bottom: 8px;
+}
+.signal-head .meta { color: var(--signal-deep); font-family: var(--font-mono); letter-spacing: 0.02em; }
+.signal-title { font-size: 15px; color: var(--ink); margin: 0 0 6px; font-weight: 500; }
+.signal-detail { font-size: 12.5px; color: var(--mute); margin: 0 0 12px; line-height: 1.5; }
+.signal-actions { display: flex; gap: 8px; }
+
+/* buttons */
+.btn {
+  font-family: var(--font-signage);
+  text-transform: uppercase; letter-spacing: 0.1em; font-size: 12px;
+  padding: 7px 14px; border-radius: 4px; border: 1px solid transparent;
+  cursor: pointer; background: transparent; color: var(--ink);
+}
+.btn-primary { background: var(--signal); color: #1a1206; font-weight: 700; }
+.btn-ghost { border-color: var(--line); color: var(--mute); }
+.btn:focus-visible { outline: 2px solid var(--ice); outline-offset: 2px; }
+
+/* inline set_alert approval (in-chat, ice register — you initiated it) */
+.approval {
+  border: 1px solid var(--ice-dim);
+  border-left: 3px solid var(--ice);
+  border-radius: var(--radius);
+  background: var(--panel);
+  padding: 14px 16px;
+}
+.approval-head {
+  font-family: var(--font-signage); text-transform: uppercase; letter-spacing: 0.14em;
+  font-size: 11.5px; color: var(--ice); margin-bottom: 8px;
+}
+.btn-ice { background: var(--ice); color: #06171b; font-weight: 700; }
+
+/* ── Composer: instrument command line ── */
+.composer {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 18px;
+  border-top: 1px solid var(--line);
+  background: var(--field-2);
+}
+.composer .prompt { font-family: var(--font-mono); color: var(--ice); font-size: 14px; }
+.composer input {
+  flex: 1; background: transparent; border: none; outline: none;
+  color: var(--ink); font-family: var(--font-mono); font-size: 14px;
+}
+.composer input::placeholder { color: var(--ice-dim); }
+.composer button {
+  font-family: var(--font-signage); text-transform: uppercase; letter-spacing: 0.12em;
+  font-size: 12px; padding: 8px 16px; border-radius: 4px; border: 1px solid var(--ice-dim);
+  background: transparent; color: var(--ice); cursor: pointer;
+}
+.composer button:disabled { color: var(--mute); border-color: var(--line); cursor: default; }
+.composer button:focus-visible { outline: 2px solid var(--ice); outline-offset: 2px; }
+
+/* ── Signal trace rail ── */
+.trace { position: absolute; inset: 0; }
+.trace-live { position: absolute; bottom: 10px; left: 0; right: 0; display: flex; justify-content: center; }
+.trace-live .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+@media (max-width: 640px) {
+  .stage { grid-template-columns: 26px 1fr; }
+  :root { --rail-w: 26px; }
+  .signal { margin-left: -12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse { animation: none !important; }
+}
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+.pulse { animation: pulse 2s ease-in-out infinite; }

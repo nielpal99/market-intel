@@ -24,7 +24,31 @@ export interface HITLCardProps {
 function formatTime(iso?: string) {
   if (!iso) return "—";
   const d = new Date(iso);
-  return isNaN(d.getTime()) ? String(iso) : d.toLocaleTimeString();
+  return isNaN(d.getTime()) ? String(iso) : d.toLocaleTimeString([], { hour12: false });
+}
+
+function humanizeKey(k: string) {
+  return k.replace(/_/g, " ");
+}
+
+function formatValue(v: unknown) {
+  if (typeof v !== "number") return String(v);
+  if (Math.abs(v) < 1 && v !== 0) return `${(v * 100).toFixed(2)}%`;
+  return v.toLocaleString(undefined, { maximumFractionDigits: 2 });
+}
+
+// detect-events stores `detail` as JSON.stringify(...). Render it as labeled
+// stats, never as a raw JSON string in the user's face.
+function parseDetail(detail: string): Array<[string, unknown]> | string {
+  const s = detail.trim();
+  if (!s.startsWith("{")) return detail;
+  try {
+    const obj = JSON.parse(s);
+    if (obj && typeof obj === "object") return Object.entries(obj);
+  } catch {
+    /* fall through to raw */
+  }
+  return detail;
 }
 
 export function HITLCard({ approval, onApprove, onDeny }: HITLCardProps) {
@@ -38,35 +62,41 @@ export function HITLCard({ approval, onApprove, onDeny }: HITLCardProps) {
   const windowEnd = formatTime(event.window_end as string | undefined);
 
   return (
-    <div style={{ border: "1px solid #374151", borderRadius: 8, padding: 16, background: "#111827", marginBottom: 12 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-        <strong style={{ color: "#f59e0b" }}>System alert</strong>
-        <span style={{ fontSize: 12, color: "#6b7280" }}>{formatTime(approval.requestedAt)}</span>
+    <div className="signal" role="alert">
+      <div className="signal-head">
+        <span>Signal</span>
+        {typeof severity === "number" && <span className="meta">{severity.toFixed(1)}σ</span>}
+        <span className="meta">{formatTime(approval.requestedAt)}</span>
       </div>
-      <p style={{ margin: "0 0 8px" }}>
-        {symbol} · {eventType}
-        {typeof severity === "number" && ` · severity ${severity.toFixed(2)}`}
+      <p className="signal-title">
+        {symbol} · {String(eventType).replace(/_/g, " ")}
       </p>
       {windowStart !== "—" && (
-        <p style={{ margin: "0 0 8px", fontSize: 13, color: "#9ca3af" }}>
-          Window {windowStart} → {windowEnd}
+        <p className="signal-detail mono">
+          {windowStart} → {windowEnd}
         </p>
       )}
-      {detail && (
-        <p style={{ margin: "0 0 12px", fontSize: 13, color: "#d1d5db" }}>{detail}</p>
-      )}
-      <div style={{ display: "flex", gap: 8 }}>
-        <button
-          onClick={() => onApprove(approval.id)}
-          style={{ padding: "6px 14px", borderRadius: 6, background: "#10b981", border: "none", color: "#fff", cursor: "pointer" }}
-        >
-          Approve
+      {detail &&
+        (() => {
+          const parsed = parseDetail(detail);
+          if (typeof parsed === "string") return <p className="signal-detail">{parsed}</p>;
+          return (
+            <div className="mono" style={{ display: "flex", flexWrap: "wrap", gap: 14, fontSize: 12, margin: "0 0 12px" }}>
+              {parsed.map(([k, v]) => (
+                <span key={k} style={{ color: "var(--ink)" }}>
+                  <span style={{ color: "var(--signal-deep)" }}>{humanizeKey(k)} </span>
+                  {formatValue(v)}
+                </span>
+              ))}
+            </div>
+          );
+        })()}
+      <div className="signal-actions">
+        <button className="btn btn-primary" onClick={() => onApprove(approval.id)}>
+          Acknowledge
         </button>
-        <button
-          onClick={() => onDeny(approval.id)}
-          style={{ padding: "6px 14px", borderRadius: 6, background: "#ef4444", border: "none", color: "#fff", cursor: "pointer" }}
-        >
-          Deny
+        <button className="btn btn-ghost" onClick={() => onDeny(approval.id)}>
+          Dismiss
         </button>
       </div>
     </div>
