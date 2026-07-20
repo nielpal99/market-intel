@@ -24,6 +24,11 @@ function toDateTime64(isoOrSeconds: string | number): string {
   return d.toISOString().slice(0, 23).replace("T", " ");
 }
 
+function toEpochMs(isoOrSeconds: string | number): number {
+  const s = String(isoOrSeconds);
+  return /^\d+(\.\d+)?$/.test(s) ? Number(s) * 1000 : new Date(s).getTime();
+}
+
 const KRAKEN_PAIR_MAP: Record<string, string> = {
   "XBT/USD": "BTC-USD",
   "BTC/USD": "BTC-USD",
@@ -39,6 +44,73 @@ function mapKrakenSide(side: string): "buy" | "sell" {
   if (side === "b" || side === "buy") return "buy";
   if (side === "s" || side === "sell") return "sell";
   throw new Error(`Unknown Kraken side: ${side}`);
+}
+
+type KrakenBookLevel = { size: number; timestamp: string };
+type KrakenBookState = {
+  bids: Map<number, KrakenBookLevel>;
+  asks: Map<number, KrakenBookLevel>;
+  lastEmittedAtMs?: number;
+};
+
+const krakenBookStateBySymbol = new Map<string, KrakenBookState>();
+
+function getKrakenBookState(symbol: string): KrakenBookState {
+  let state = krakenBookStateBySymbol.get(symbol);
+  if (!state) {
+    state = { bids: new Map(), asks: new Map() };
+    krakenBookStateBySymbol.set(symbol, state);
+  }
+  return state;
+}
+
+function applyKrakenLevels(side: Map<number, KrakenBookLevel>, levels: unknown): string | undefined {
+  if (!Array.isArray(levels)) return undefined;
+  let lastTimestamp: string | undefined;
+  for (const level of levels) {
+    if (!Array.isArray(level) || level.length < 3) continue;
+    const price = Number(level[0]);
+    const size = Number(level[1]);
+    const timestamp = String(level[2]);
+    if (!Number.isFinite(price) || !Number.isFinite(size)) continue;
+    lastTimestamp = timestamp;
+    if (size === 0) {
+      side.delete(price);
+    } else {
+      side.set(price, { size, timestamp });
+    }
+  }
+  return lastTimestamp;
+}
+
+function bestKrakenLevel(
+  side: Map<number, KrakenBookLevel>,
+  better: (candidate: number, current: number) => boolean
+): [number, KrakenBookLevel] | undefined {
+  let best: [number, KrakenBookLevel] | undefined;
+  side.forEach((level, price) => {
+    if (!best || better(price, best[0])) best = [price, level];
+  });
+  return best;
+}
+
+function pruneKrakenLevels(side: Map<number, KrakenBookLevel>, shouldPrune: (price: number) => boolean): void {
+  const prices: number[] = [];
+  side.forEach((_level, price) => {
+    if (shouldPrune(price)) prices.push(price);
+  });
+  for (const price of prices) side.delete(price);
+}
+
+function repairKrakenCrossedBook(state: KrakenBookState, updatedBid: boolean, updatedAsk: boolean): void {
+  for (let i = 0; i < 2; i++) {
+    const bid = bestKrakenLevel(state.bids, (candidate, current) => candidate > current);
+    const ask = bestKrakenLevel(state.asks, (candidate, current) => candidate < current);
+    if (!bid || !ask || bid[0] < ask[0]) return;
+    if (updatedAsk) pruneKrakenLevels(state.bids, (price) => price >= ask[0]);
+    if (updatedBid) pruneKrakenLevels(state.asks, (price) => price <= bid[0]);
+    if (!updatedBid && !updatedAsk) return;
+  }
 }
 
 export function parseCoinbaseMatch(msg: unknown): TradeRow | null {
@@ -108,20 +180,39 @@ export function parseKrakenBook(msg: unknown): BookRow | null {
   const channelName = m[m.length - 2];
   if (typeof channelName !== "string" || !channelName.startsWith("book")) return null;
   const pair = normalizeKrakenPair(m[m.length - 1]);
-  const data = m[1];
-  const bidSide = data.bs ?? data.b;
-  const askSide = data.as ?? data.a;
-  if (!Array.isArray(bidSide) || !Array.isArray(askSide) || !bidSide[0] || !askSide[0]) return null;
-  const bid = bidSide[0];
-  const ask = askSide[0];
-  const ts = bid[2] ?? ask[2];
+
+  const state = getKrakenBookState(pair);
+  let bidTimestamp: string | undefined;
+  let askTimestamp: string | undefined;
+
+  for (let i = 1; i < m.length - 2; i++) {
+    const data = m[i];
+    if (!data || typeof data !== "object" || Array.isArray(data)) continue;
+    bidTimestamp = applyKrakenLevels(state.bids, data.bs ?? data.b) ?? bidTimestamp;
+    askTimestamp = applyKrakenLevels(state.asks, data.as ?? data.a) ?? askTimestamp;
+  }
+  if (!bidTimestamp && !askTimestamp) return null;
+  repairKrakenCrossedBook(state, Boolean(bidTimestamp), Boolean(askTimestamp));
+
+  const bid = bestKrakenLevel(state.bids, (candidate, current) => candidate > current);
+  const ask = bestKrakenLevel(state.asks, (candidate, current) => candidate < current);
+  if (!bid || !ask) return null;
+  if (bid[0] >= ask[0]) return null;
+
+  const ts = bidTimestamp ?? askTimestamp ?? bid[1].timestamp ?? ask[1].timestamp;
+  const tsMs = toEpochMs(ts);
+  if (state.lastEmittedAtMs !== undefined && Number.isFinite(tsMs) && tsMs - state.lastEmittedAtMs < 1000) {
+    return null;
+  }
+  if (Number.isFinite(tsMs)) state.lastEmittedAtMs = tsMs;
+
   return {
     exchange: "kraken",
     symbol: pair,
     timestamp: toDateTime64(ts),
-    best_bid: Number(bid[0]),
-    best_ask: Number(ask[0]),
-    bid_size: Number(bid[1]),
-    ask_size: Number(ask[1]),
+    best_bid: bid[0],
+    best_ask: ask[0],
+    bid_size: bid[1].size,
+    ask_size: ask[1].size,
   };
 }

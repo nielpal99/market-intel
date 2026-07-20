@@ -101,6 +101,7 @@ export const ingestionWatchdog = schedules.task({
     const lastByTask = new Map(heartbeats.map((h) => [h.task, new Date(h.last_flush.replace(" ", "T") + "Z")]));
 
     const restarted: string[] = [];
+    const taskStatuses: Array<{ id: string; last_flush?: string; age_seconds?: number; stale: boolean; runId?: string }> = [];
     const ingestTasks = [
       { id: "ingest-trades-ws", handle: ingestTradesWs },
       { id: "ingest-book-ws", handle: ingestBookWs },
@@ -108,13 +109,24 @@ export const ingestionWatchdog = schedules.task({
 
     for (const { id, handle } of ingestTasks) {
       const last = lastByTask.get(id);
-      const stale = !last || Date.now() - last.getTime() > HEARTBEAT_STALE_SECONDS * 1000;
+      const ageMs = last ? Date.now() - last.getTime() : undefined;
+      const stale = !last || ageMs! > HEARTBEAT_STALE_SECONDS * 1000;
+      const status = {
+        id,
+        last_flush: last?.toISOString(),
+        age_seconds: ageMs === undefined ? undefined : Math.round(ageMs / 1000),
+        stale,
+        runId: undefined as string | undefined,
+      };
       if (stale) {
-        await handle.trigger({});
+        const run = await handle.trigger({});
+        status.runId = run.id;
         restarted.push(id);
       }
+      taskStatuses.push(status);
     }
-    return { restarted, heartbeats };
+    console.log("ingestion-watchdog", { restarted, taskStatuses });
+    return { restarted, heartbeats, taskStatuses };
   },
 });
 

@@ -40,11 +40,12 @@ SELECT
     a.timestamp,
     a.exchange AS exchange_a, a.best_bid AS bid_a, a.best_ask AS ask_a,
     b.exchange AS exchange_b, b.best_bid AS bid_b, b.best_ask AS ask_b,
+    abs(dateDiff('millisecond', a.timestamp, b.timestamp)) AS time_delta_ms,
     (a.best_bid - b.best_ask) AS spread_a_over_b
 FROM book_snapshots a
 INNER JOIN book_snapshots b
     ON a.symbol = b.symbol AND a.exchange != b.exchange
-    AND abs(a.timestamp - b.timestamp) < 2;
+    AND abs(dateDiff('millisecond', a.timestamp, b.timestamp)) <= 250;
 
 CREATE TABLE ingest_heartbeats (
     task String,
