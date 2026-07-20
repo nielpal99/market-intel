@@ -50,6 +50,19 @@ async function fetchSpreadSeries(symbol: string, minutes: number) {
   );
 }
 
+async function fetchTradesAround(symbol: string, at: string, seconds: number) {
+  return chQuery(
+    `SELECT exchange, symbol, trade_id, price, size, side, timestamp
+     FROM trades
+     WHERE symbol = {symbol:String}
+       AND timestamp >= {at:DateTime64(3)} - INTERVAL {seconds:UInt16} SECOND
+       AND timestamp <= {at:DateTime64(3)} + INTERVAL {seconds:UInt16} SECOND
+     ORDER BY timestamp, exchange
+     LIMIT 300`,
+    { symbol, at: toChDateTime(at), seconds }
+  );
+}
+
 async function fetchCorrelations(symbols: string[], minutes: number = 720) {
   return chQuery(
     `SELECT symbol, minute, argMaxMerge(close) AS close
@@ -120,30 +133,46 @@ function computeCorrelationNetwork(rows: CorrelationRow[], symbols: string[], ro
     returnsBySymbol.set(symbol, returns);
   }
 
-  const correlations: Array<{ source: string; target: string; correlation: number; samples: number }> = [];
+  const correlations: Array<{
+    source: string;
+    target: string;
+    correlation: number;
+    samples: number;
+    series: Array<{ minute: string; correlation: number; samples: number }>;
+  }> = [];
   for (let i = 0; i < symbols.length; i++) {
     for (let j = i + 1; j < symbols.length; j++) {
       const source = symbols[i];
       const target = symbols[j];
       const sourceReturns = returnsBySymbol.get(source) ?? new Map();
       const targetReturns = returnsBySymbol.get(target) ?? new Map();
-      const xs: number[] = [];
-      const ys: number[] = [];
+      const aligned: Array<{ minute: string; sourceReturn: number; targetReturn: number }> = [];
       Array.from(sourceReturns.entries())
         .sort(([a], [b]) => a.localeCompare(b))
         .forEach(([minute, sourceReturn]) => {
           const targetReturn = targetReturns.get(minute);
           if (targetReturn !== undefined) {
-            xs.push(sourceReturn);
-            ys.push(targetReturn);
+            aligned.push({ minute, sourceReturn, targetReturn });
           }
         });
+      const xs = aligned.map((point) => point.sourceReturn);
+      const ys = aligned.map((point) => point.targetReturn);
       const start = Math.max(0, xs.length - rollingSamples);
       const rollingXs = xs.slice(start);
       const rollingYs = ys.slice(start);
       const correlation = pearson(rollingXs, rollingYs);
       if (correlation !== null) {
-        correlations.push({ source, target, correlation, samples: rollingXs.length });
+        const series = aligned
+          .map((point, index) => {
+            const seriesStart = Math.max(0, index + 1 - rollingSamples);
+            const seriesXs = xs.slice(seriesStart, index + 1);
+            const seriesYs = ys.slice(seriesStart, index + 1);
+            const value = pearson(seriesXs, seriesYs);
+            return value === null ? null : { minute: point.minute, correlation: value, samples: seriesXs.length };
+          })
+          .filter((point): point is { minute: string; correlation: number; samples: number } => point !== null)
+          .slice(-80);
+        correlations.push({ source, target, correlation, samples: rollingXs.length, series });
       }
     }
   }
@@ -170,6 +199,8 @@ Process:
 3. Emit exactly one render_* tool call as the final answer.
 
 If a query returns no rows, retry once with a shorter, more recent window before concluding data is unavailable — ingestion may have started recently.
+
+For user requests that ask what trades produced a spread reading, call query_trades_around for the supplied symbol and timestamp before rendering a verdict card.
 
 After a render_* tool call completes, output nothing — the render call is the complete response.
 
@@ -224,6 +255,16 @@ export function buildMarketIntelTools(chatId: string, userId: string = DEMO_USER
         { symbol, exchange, at: toChDateTime(at) }
       );
     },
+  });
+
+  const query_trades_around = tool({
+    description: "Fetch a recent trade tape around a specific timestamp when drilling into a spread or price move.",
+    inputSchema: z.object({
+      symbol: SYMBOLS,
+      at: z.string().datetime(),
+      seconds: z.number().int().min(10).max(600).default(60),
+    }),
+    execute: async ({ symbol, at, seconds }) => fetchTradesAround(symbol, at, seconds),
   });
 
   const query_correlations = tool({
@@ -369,6 +410,7 @@ export function buildMarketIntelTools(chatId: string, userId: string = DEMO_USER
     query_price_series,
     query_spread_series,
     query_orderbook_at,
+    query_trades_around,
     query_correlations,
     render_candlestick,
     render_spread_heatmap,

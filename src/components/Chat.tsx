@@ -13,7 +13,12 @@ import { HITLCard, HITLApproval } from "./HITLCard";
 import { SignalTrace } from "./SignalTrace";
 import { useThroughput } from "@/lib/useThroughput";
 
-const RENDER_COMPONENTS: Record<string, (props: { data: any }) => JSX.Element> = {
+type DrillDownProps = {
+  data: any;
+  onDrillDown?: (message: string) => void;
+};
+
+const RENDER_COMPONENTS: Record<string, (props: DrillDownProps) => JSX.Element> = {
   "tool-render_verdict_card": VerdictCard,
   "tool-render_candlestick": Candlestick,
   "tool-render_spread_heatmap": SpreadHeatmap,
@@ -84,6 +89,12 @@ export function Chat() {
     setInput("");
   };
 
+  const sendScopedMessage = (text: string) => {
+    const message = text.trim();
+    if (!message || busy) return;
+    sendMessage({ text: message });
+  };
+
   return (
     <section className="console">
       <header className="status-strip">
@@ -148,7 +159,7 @@ export function Chat() {
                             <span>· {label}</span>
                           </div>
                           <div className="readout-body">
-                            <Widget data={part.output} />
+                            <Widget data={part.output} onDrillDown={sendScopedMessage} />
                           </div>
                         </div>
                       );
