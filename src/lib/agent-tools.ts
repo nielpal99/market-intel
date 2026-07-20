@@ -9,7 +9,7 @@ import { savedInvestigations, alertSubscriptions, hitlApprovals } from "@/lib/sc
 // Single source of truth for the agent's model. To switch back to Anthropic:
 //   import { anthropic } from "@ai-sdk/anthropic";
 //   export const model = anthropic("claude-sonnet-4-5");
-export const model = openai("gpt-5.1");
+export const model = openai("gpt-5.6-terra");
 
 // Identity comes from the server session, never from the LLM. This demo user
 // is seeded by db/postgres_schema.sql; a real app would resolve it from auth.
