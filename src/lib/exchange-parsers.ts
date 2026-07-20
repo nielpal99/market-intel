@@ -188,6 +188,18 @@ export function parseKrakenBook(msg: unknown): BookRow | null {
   for (let i = 1; i < m.length - 2; i++) {
     const data = m[i];
     if (!data || typeof data !== "object" || Array.isArray(data)) continue;
+    // Kraken sends a full snapshot (keys `as`/`bs`) on the initial subscribe AND
+    // on every resubscribe after a reconnect. A snapshot REPLACES the book, so
+    // clear the affected side before applying — otherwise stale pre-disconnect
+    // levels survive into best_bid/best_ask, and the crossed-book repair below
+    // can then prune the freshly-correct side against a stale price.
+    if (Array.isArray(data.bs)) state.bids.clear();
+    if (Array.isArray(data.as)) state.asks.clear();
+    if (Array.isArray(data.bs) || Array.isArray(data.as)) {
+      // Fresh book after a (re)snapshot: don't throttle it against a
+      // pre-reconnect sample, so the first correct post-reconnect top emits.
+      state.lastEmittedAtMs = undefined;
+    }
     bidTimestamp = applyKrakenLevels(state.bids, data.bs ?? data.b) ?? bidTimestamp;
     askTimestamp = applyKrakenLevels(state.asks, data.as ?? data.a) ?? askTimestamp;
   }
