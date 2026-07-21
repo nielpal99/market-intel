@@ -11,6 +11,7 @@ import { VolatilityBands } from "./VolatilityBands";
 import { CorrelationNetwork } from "./CorrelationNetwork";
 import { HITLCard, HITLApproval } from "./HITLCard";
 import { SignalTrace } from "./SignalTrace";
+import { WidgetSkeleton } from "./WidgetSkeleton";
 import { useThroughput } from "@/lib/useThroughput";
 
 type DrillDownProps = {
@@ -183,19 +184,36 @@ export function Chat() {
                     }
 
                     const Widget = RENDER_COMPONENTS[part.type];
-                    if (Widget && part.state === "output-available") {
+                    if (Widget) {
                       const label = part.type.replace("tool-render_", "").replace(/_/g, " ");
-                      return (
-                        <div key={i} className="readout">
-                          <div className="readout-head">
-                            <span className="tag">Readout</span>
-                            <span>· {label}</span>
+                      if (part.state === "output-available") {
+                        return (
+                          <div key={i} className="readout">
+                            <div className="readout-head">
+                              <span className="tag">Readout</span>
+                              <span>· {label}</span>
+                            </div>
+                            <div className="readout-body">
+                              <Widget data={part.output} onDrillDown={sendScopedMessage} />
+                            </div>
                           </div>
-                          <div className="readout-body">
-                            <Widget data={part.output} onDrillDown={sendScopedMessage} />
+                        );
+                      }
+                      // input-streaming / input-available: tool is building or executing —
+                      // show a shape-matched skeleton so the ~3s gap has visible progress.
+                      if (part.state === "input-streaming" || part.state === "input-available") {
+                        return (
+                          <div key={i} className="readout">
+                            <div className="readout-head">
+                              <span className="tag">Readout</span>
+                              <span>· {label}</span>
+                            </div>
+                            <div className="readout-body">
+                              <WidgetSkeleton type={part.type} />
+                            </div>
                           </div>
-                        </div>
-                      );
+                        );
+                      }
                     }
 
                     if (part.type === "tool-set_alert" && part.state === "approval-requested") {
