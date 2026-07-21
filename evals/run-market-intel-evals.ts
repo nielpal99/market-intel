@@ -2,7 +2,6 @@ import "dotenv/config";
 
 import { mkdir, writeFile } from "node:fs/promises";
 import { anthropic } from "@ai-sdk/anthropic";
-import { openai } from "@ai-sdk/openai";
 import { streamText, stepCountIs, tool, type ToolSet } from "ai";
 import * as braintrust from "braintrust";
 import { z } from "zod";
@@ -75,7 +74,7 @@ function parseArgs() {
 
 function modelFor(name: ModelName) {
   if (name === "claude") return anthropic("claude-sonnet-4-5");
-  return openai("gpt-5.5");
+  return anthropic("claude-sonnet-4-5");
 }
 
 function sampleRows(name: string, evalCase: MarketIntelEvalCase) {
