@@ -1,4 +1,4 @@
-import { marketIntelStreamControls } from "../src/lib/agent-tools";
+import { compactMarketIntelMessages, marketIntelStreamControls } from "../src/lib/agent-tools";
 
 const RENDER_TOOLS = [
   "render_candlestick",
@@ -36,6 +36,25 @@ async function main() {
     steps: [{ toolCalls: [{ toolName: "query_correlations" }] }],
   } as any);
   assert(shouldContinueAfterQuery === false, "The stream should not stop after a query-only step.");
+
+  const compacted = compactMarketIntelMessages([
+    {
+      role: "user",
+      content: "show a heatmap",
+    },
+    {
+      role: "tool",
+      content: [{ toolName: "render_spread_heatmap", output: { rows: Array.from({ length: 300 }, (_, i) => ({ i })) } }],
+    },
+    {
+      role: "user",
+      content: "now drill into that cell",
+    },
+  ]);
+  const olderOutput = (compacted[1] as any).content[0].output.rows;
+  assert(olderOutput.__compacted === true, "Older row arrays should be compacted before the next model turn.");
+  assert(olderOutput.rowCount === 300, "Compacted row arrays should retain their row count.");
+  assert((compacted[2] as any).content === "now drill into that cell", "The latest user turn must remain unchanged.");
 
   console.log("stream controls ok");
 }

@@ -18,6 +18,7 @@ export const DEMO_USER_ID = "00000000-0000-0000-0000-000000000001";
 const SYMBOLS = z.enum(["BTC-USD", "ETH-USD", "SOL-USD"]);
 const SPREAD_SERIES_LIMIT = 300;
 const VERDICT_MAX_CHARS = 200;
+const COMPACT_ARRAY_LIMIT = 12;
 const RENDER_TOOL_NAMES = [
   "render_candlestick",
   "render_spread_heatmap",
@@ -192,6 +193,42 @@ function sanitizeVerdict(verdict: string) {
   const wordEnd = withinLimit.search(/\s+\S*$/);
   const clean = wordEnd >= 60 ? withinLimit.slice(0, wordEnd) : withinLimit;
   return completeSentence(trimDanglingConnector(clean));
+}
+
+function compactArray(value: unknown[]) {
+  if (value.length <= COMPACT_ARRAY_LIMIT) return value.map(compactLargePayload);
+  return {
+    __compacted: true,
+    rowCount: value.length,
+    first: compactLargePayload(value[0]),
+    last: compactLargePayload(value[value.length - 1]),
+  };
+}
+
+function compactLargePayload(value: unknown): unknown {
+  if (Array.isArray(value)) return compactArray(value);
+  if (!value || typeof value !== "object") return value;
+
+  const input = value as Record<string, unknown>;
+  const output: Record<string, unknown> = {};
+  for (const [key, child] of Object.entries(input)) {
+    if ((key === "rows" || key === "ohlc") && Array.isArray(child) && child.length > COMPACT_ARRAY_LIMIT) {
+      output[key] = compactArray(child);
+      continue;
+    }
+    output[key] = compactLargePayload(child);
+  }
+  return output;
+}
+
+export function compactMarketIntelMessages<T extends { role?: string }>(messages: T[]): T[] {
+  const latestUserIndex = messages.map((message) => message.role).lastIndexOf("user");
+  if (latestUserIndex <= 0) return messages;
+
+  return messages.map((message, index) => {
+    if (index >= latestUserIndex) return message;
+    return compactLargePayload(message) as T;
+  });
 }
 
 function pearson(xs: number[], ys: number[]): number | null {

@@ -1,6 +1,6 @@
 import { chat } from "@trigger.dev/sdk/ai";
 import { streamText } from "ai";
-import { systemPrompt, model, buildMarketIntelTools, marketIntelStreamControls } from "@/lib/agent-tools";
+import { systemPrompt, model, buildMarketIntelTools, marketIntelStreamControls, compactMarketIntelMessages } from "@/lib/agent-tools";
 
 export const marketIntel = chat.agent({
   id: "market-intel",
@@ -9,7 +9,7 @@ export const marketIntel = chat.agent({
     streamText({
       model,
       system: systemPrompt(),
-      messages,
+      messages: compactMarketIntelMessages(messages),
       tools,
       abortSignal: signal,
       ...marketIntelStreamControls(),
