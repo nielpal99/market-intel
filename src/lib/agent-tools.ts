@@ -9,7 +9,7 @@ import { savedInvestigations, alertSubscriptions, hitlApprovals } from "@/lib/sc
 // Single source of truth for the agent's model. To switch back to Anthropic:
 //   import { anthropic } from "@ai-sdk/anthropic";
 //   export const model = anthropic("claude-sonnet-4-5");
-export const model = openai("gpt-5.6-terra");
+export const model = openai("gpt-5.5");
 
 // Identity comes from the server session, never from the LLM. This demo user
 // is seeded by db/postgres_schema.sql; a real app would resolve it from auth.
@@ -17,6 +17,7 @@ export const DEMO_USER_ID = "00000000-0000-0000-0000-000000000001";
 
 const SYMBOLS = z.enum(["BTC-USD", "ETH-USD", "SOL-USD"]);
 const SPREAD_SERIES_LIMIT = 300;
+const VERDICT_MAX_CHARS = 200;
 const RENDER_TOOL_NAMES = [
   "render_candlestick",
   "render_spread_heatmap",
@@ -152,11 +153,45 @@ type CorrelationRow = {
 function noDataVerdict(verdict: string, caption: string, stats: Array<{ label: string; value: string }> = []) {
   return {
     __renderAs: "verdict_card",
-    verdict,
+    verdict: sanitizeVerdict(verdict),
     confidence: 0.99,
     stats,
     caption,
   };
+}
+
+function completeSentence(text: string) {
+  const trimmed = text.trim();
+  if (!trimmed) return trimmed;
+  return /[.!?]$/.test(trimmed) ? trimmed : `${trimmed}.`;
+}
+
+function trimDanglingConnector(text: string) {
+  const withoutTrailingClause = text.replace(
+    /\s+\b(?:because|while|although|though|whereas|with|without|when|where|if|instead of)\b[^.!?;:,]*$/i,
+    ""
+  );
+  const candidate = withoutTrailingClause.length >= 60 ? withoutTrailingClause : text;
+  return candidate
+    .replace(/[,;:\s]+$/g, "")
+    .replace(/\s+\b(?:and|but|or|while|with|without|because|as|at|to|from|by|had|has|was|were|is|are|a|an|the)\b$/i, "")
+    .trim();
+}
+
+function sanitizeVerdict(verdict: string) {
+  const normalized = verdict.replace(/\s+/g, " ").trim();
+  if (normalized.length <= VERDICT_MAX_CHARS) return completeSentence(normalized);
+
+  const withinLimit = normalized.slice(0, VERDICT_MAX_CHARS);
+  const sentenceEnd = Math.max(withinLimit.lastIndexOf("."), withinLimit.lastIndexOf("!"), withinLimit.lastIndexOf("?"));
+  if (sentenceEnd >= 60) return withinLimit.slice(0, sentenceEnd + 1).trim();
+
+  const clauseEnd = Math.max(withinLimit.lastIndexOf(";"), withinLimit.lastIndexOf(":"), withinLimit.lastIndexOf(","));
+  if (clauseEnd >= 60) return completeSentence(trimDanglingConnector(withinLimit.slice(0, clauseEnd)));
+
+  const wordEnd = withinLimit.search(/\s+\S*$/);
+  const clean = wordEnd >= 60 ? withinLimit.slice(0, wordEnd) : withinLimit;
+  return completeSentence(trimDanglingConnector(clean));
 }
 
 function pearson(xs: number[], ys: number[]): number | null {
@@ -283,6 +318,8 @@ When the user asks to save an investigation, call save_investigation even if you
 When the user asks to create or set an alert, call set_alert directly. Do not ask for approval yourself with render_verdict_card first; set_alert.needsApproval is the approval mechanism. After set_alert resolves, render_verdict_card confirming the alert status only.
 
 For user requests that ask what trades produced a spread reading, call query_trades_around for the supplied symbol and timestamp before rendering a verdict card.
+
+For render_verdict_card, keep verdict to one complete, short sentence. Put supporting detail in stats and caption; never use verdict as a long explanation.
 
 After a render_* tool call completes, output nothing — the render call is the complete response.
 
@@ -471,12 +508,12 @@ export function buildMarketIntelTools(chatId: string, userId: string = DEMO_USER
   const render_verdict_card = tool({
     description: "Render a single-line answer with confidence and optional stats.",
     inputSchema: z.object({
-      verdict: z.string().max(200),
+      verdict: z.string().max(500),
       confidence: z.number().min(0).max(1),
       stats: z.array(z.object({ label: z.string(), value: z.string() })).max(4).optional(),
       caption: z.string().max(160),
     }),
-    execute: async (input) => input,
+    execute: async (input) => ({ ...input, verdict: sanitizeVerdict(input.verdict) }),
   });
 
   const save_investigation = tool({

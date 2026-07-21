@@ -75,7 +75,7 @@ function parseArgs() {
 
 function modelFor(name: ModelName) {
   if (name === "claude") return anthropic("claude-sonnet-4-5");
-  return openai("gpt-5.6-terra");
+  return openai("gpt-5.5");
 }
 
 function sampleRows(name: string, evalCase: MarketIntelEvalCase) {
