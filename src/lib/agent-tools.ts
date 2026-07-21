@@ -16,6 +16,7 @@ export const model = openai("gpt-5.6-terra");
 export const DEMO_USER_ID = "00000000-0000-0000-0000-000000000001";
 
 const SYMBOLS = z.enum(["BTC-USD", "ETH-USD", "SOL-USD"]);
+const SPREAD_SERIES_LIMIT = 300;
 
 // ClickHouse DateTime64 query params parse most reliably as "YYYY-MM-DD HH:MM:SS.mmm"
 function toChDateTime(iso: string): string {
@@ -42,11 +43,8 @@ async function fetchPriceSeries(symbol: string, window_start: string, window_end
 
 async function fetchSpreadSeries(symbol: string, minutes: number) {
   return chQuery(
-    `SELECT * FROM cross_exchange_spread
-     WHERE symbol = {symbol:String}
-       AND timestamp > now() - INTERVAL {minutes:UInt16} MINUTE
-     ORDER BY timestamp`,
-    { symbol, minutes }
+    spreadSeriesSql(),
+    { symbol, minutes, limit: SPREAD_SERIES_LIMIT }
   );
 }
 
@@ -83,12 +81,35 @@ async function fetchPriceSeriesWithStats(symbol: string, window_start: string, w
 
 async function fetchSpreadSeriesWithStats(symbol: string, minutes: number) {
   return chQueryWithStats(
-    `SELECT * FROM cross_exchange_spread
-     WHERE symbol = {symbol:String}
-       AND timestamp > now() - INTERVAL {minutes:UInt16} MINUTE
-     ORDER BY timestamp`,
-    { symbol, minutes }
+    spreadSeriesSql(),
+    { symbol, minutes, limit: SPREAD_SERIES_LIMIT }
   );
+}
+
+function spreadSeriesSql() {
+  return `SELECT * FROM (
+      SELECT
+        a.symbol,
+        a.timestamp AS timestamp,
+        a.exchange AS exchange_a, a.best_bid AS bid_a, a.best_ask AS ask_a,
+        b.exchange AS exchange_b, b.best_bid AS bid_b, b.best_ask AS ask_b,
+        abs(dateDiff('millisecond', a.timestamp, b.timestamp)) AS time_delta_ms,
+        (a.best_bid - b.best_ask) AS spread_a_over_b
+      FROM
+        (SELECT * FROM book_snapshots
+         WHERE symbol = {symbol:String}
+           AND timestamp > now() - INTERVAL {minutes:UInt16} MINUTE) a
+      INNER JOIN
+        (SELECT * FROM book_snapshots
+         WHERE symbol = {symbol:String}
+           AND timestamp > now() - INTERVAL {minutes:UInt16} MINUTE) b
+      ON a.symbol = b.symbol
+       AND a.exchange != b.exchange
+       AND abs(dateDiff('millisecond', a.timestamp, b.timestamp)) <= 250
+      ORDER BY timestamp DESC
+      LIMIT {limit:UInt16}
+    )
+    ORDER BY timestamp`;
 }
 
 async function fetchCorrelationsWithStats(symbols: string[], minutes: number) {
@@ -289,7 +310,7 @@ export function buildMarketIntelTools(chatId: string, userId: string = DEMO_USER
 
   const query_spread_series = tool({
     description: "Fetch cross-exchange spread series from ClickHouse.",
-    inputSchema: z.object({ symbol: SYMBOLS, minutes: z.number().max(120).default(30) }),
+    inputSchema: z.object({ symbol: SYMBOLS, minutes: z.number().max(120).default(20) }),
     execute: async ({ symbol, minutes }) => fetchSpreadSeries(symbol, minutes),
   });
 
@@ -361,7 +382,7 @@ export function buildMarketIntelTools(chatId: string, userId: string = DEMO_USER
     description: "Render a cross-exchange spread heatmap.",
     inputSchema: z.object({
       symbol: SYMBOLS,
-      minutes: z.number().max(120).default(30),
+      minutes: z.number().max(120).default(20),
       caption: z.string().max(160),
     }),
     execute: async (input) => {
