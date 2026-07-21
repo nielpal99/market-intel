@@ -54,9 +54,12 @@ function CandlestickChart({ data, onDrillDown }: { data: any; onDrillDown?: (mes
   useEffect(() => {
     if (!ref.current || !rows.length) return;
     let chart: any;
+    let cancelled = false;
     (async () => {
       const { createChart, CandlestickSeries } = await import("lightweight-charts");
-      chart = createChart(ref.current!, {
+      if (cancelled || !ref.current) return;
+      ref.current.innerHTML = "";
+      chart = createChart(ref.current, {
         width: ref.current!.clientWidth,
         height: 300,
         layout: { background: { color: "#0f1e27" }, textColor: "#6e8797", fontFamily: "IBM Plex Mono, monospace" },
@@ -76,7 +79,11 @@ function CandlestickChart({ data, onDrillDown }: { data: any; onDrillDown?: (mes
       series.setData(rows);
       chart.timeScale().fitContent();
     })();
-    return () => chart?.remove();
+    return () => {
+      cancelled = true;
+      chart?.remove();
+      if (ref.current) ref.current.innerHTML = "";
+    };
   }, [rows]);
 
   useEffect(() => {
