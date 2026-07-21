@@ -16,7 +16,7 @@ The reactive path (ask a question, get a widget) exists too, and every widget is
 
 ## Architecture
 
-- **`chat.agent("market-intel")`** — [Trigger.dev v4.5+](https://trigger.dev/), the required orchestration primitive. A durable, long-running chat task built on Vercel AI SDK's `streamText`, currently running on **Claude Sonnet 4.5** via `@ai-sdk/anthropic` (see [Model note](#model-note) below).
+- **`chat.agent("market-intel")`** — [Trigger.dev v4.5+](https://trigger.dev/), the required orchestration primitive. A durable, long-running chat task built on Vercel AI SDK's `streamText`, currently running on **Claude Sonnet 5** via `@ai-sdk/anthropic` (see [Model note](#model-note) below).
 - **ClickHouse Cloud** — primary analytics database. Tick-level trade and order-book data ingested continuously from Coinbase Exchange and Kraken's public WebSocket feeds, aggregated via materialized views for fast agent recall.
 - **Neon (Postgres)** — OLTP layer: users, watchlists, saved investigations, alert subscriptions, human-in-the-loop approvals.
 - **Long-running Trigger.dev tasks** — persistent WebSocket ingestion, a heartbeat-driven watchdog, continuous anomaly detection, and event fanout to the OLTP layer.
