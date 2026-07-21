@@ -1,4 +1,4 @@
-import { tool } from "ai";
+import { hasToolCall, stepCountIs, tool } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
@@ -17,6 +17,13 @@ export const DEMO_USER_ID = "00000000-0000-0000-0000-000000000001";
 
 const SYMBOLS = z.enum(["BTC-USD", "ETH-USD", "SOL-USD"]);
 const SPREAD_SERIES_LIMIT = 300;
+const RENDER_TOOL_NAMES = [
+  "render_candlestick",
+  "render_spread_heatmap",
+  "render_volatility_bands",
+  "render_correlation_network",
+  "render_verdict_card",
+] as const;
 
 // ClickHouse DateTime64 query params parse most reliably as "YYYY-MM-DD HH:MM:SS.mmm"
 function toChDateTime(iso: string): string {
@@ -280,6 +287,27 @@ For user requests that ask what trades produced a spread reading, call query_tra
 After a render_* tool call completes, output nothing — the render call is the complete response.
 
 Framing must be structural, not directive. You are not a financial advisor.`;
+}
+
+function stepHasNonRenderTool(step: { toolCalls?: Array<{ toolName?: string }> }) {
+  return step.toolCalls?.some((call) => {
+    const toolName = call.toolName ?? "";
+    return toolName.length > 0 && !RENDER_TOOL_NAMES.includes(toolName as (typeof RENDER_TOOL_NAMES)[number]);
+  }) ?? false;
+}
+
+export function marketIntelStreamControls() {
+  return {
+    stopWhen: [hasToolCall(...RENDER_TOOL_NAMES), stepCountIs(15)],
+    prepareStep: ({ steps }: { steps: Array<{ toolCalls?: Array<{ toolName?: string }> }> }) => {
+      const lastStep = steps.at(-1);
+      if (!lastStep || !stepHasNonRenderTool(lastStep)) return undefined;
+      return {
+        activeTools: RENDER_TOOL_NAMES,
+        toolChoice: "required" as const,
+      };
+    },
+  };
 }
 
 // chatId and userId come from the server (per-turn tools factory or headStart

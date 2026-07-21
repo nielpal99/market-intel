@@ -1,6 +1,6 @@
 import { chat } from "@trigger.dev/sdk/ai";
-import { streamText, stepCountIs } from "ai";
-import { systemPrompt, model, buildMarketIntelTools } from "@/lib/agent-tools";
+import { streamText } from "ai";
+import { systemPrompt, model, buildMarketIntelTools, marketIntelStreamControls } from "@/lib/agent-tools";
 
 export const marketIntel = chat.agent({
   id: "market-intel",
@@ -12,6 +12,6 @@ export const marketIntel = chat.agent({
       messages,
       tools,
       abortSignal: signal,
-      stopWhen: stepCountIs(15),
+      ...marketIntelStreamControls(),
     }),
 });
