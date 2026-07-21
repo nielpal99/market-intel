@@ -53,9 +53,7 @@ function CorrelationNetworkGraph({ data }: { data: any }) {
       <svg width="100%" viewBox={`0 0 ${width} ${height}`} style={{ background: "var(--field)", borderRadius: 4 }}>
         <style>
           {`
-            .correlation-edge .edge-details { opacity: 0; transition: opacity 120ms ease; }
-            .correlation-edge:hover .edge-details,
-            .correlation-edge:focus .edge-details { opacity: 1; }
+            .correlation-edge .edge-details { transition: opacity 120ms ease; }
           `}
         </style>
         {correlations.map((edge: any) => {
@@ -102,7 +100,7 @@ function CorrelationNetworkGraph({ data }: { data: any }) {
                 onPointerEnter={activateEdge}
                 onPointerMove={activateEdge}
                 onClick={activateEdge}
-                style={{ cursor: "default" }}
+                style={{ cursor: "crosshair", pointerEvents: "stroke" }}
               />
               <line
                 x1={a.x}
@@ -113,12 +111,7 @@ function CorrelationNetworkGraph({ data }: { data: any }) {
                 strokeWidth={strokeWidth}
                 opacity={opacity}
                 strokeLinecap="round"
-                onMouseEnter={activateEdge}
-                onMouseMove={activateEdge}
-                onPointerEnter={activateEdge}
-                onPointerMove={activateEdge}
-                onClick={activateEdge}
-                style={{ cursor: "default" }}
+                pointerEvents="none"
               />
               <text
                 textAnchor="middle"
@@ -127,15 +120,11 @@ function CorrelationNetworkGraph({ data }: { data: any }) {
                 fill="var(--ink)"
                 fontSize={10}
                 fontFamily="var(--font-mono)"
-                onMouseEnter={activateEdge}
-                onMouseMove={activateEdge}
-                onPointerEnter={activateEdge}
-                onPointerMove={activateEdge}
-                onClick={activateEdge}
+                pointerEvents="none"
               >
                 {coefficient.toFixed(2)}
               </text>
-              <g className="edge-details" pointerEvents="none">
+              <g className="edge-details" pointerEvents="none" opacity={activeEdgeId === edgeId ? 1 : 0}>
                 <rect
                   x={Math.max(8, Math.min(width - 178, midX - 84))}
                   y={midY > height - 74 ? midY - 70 : midY + 12}
