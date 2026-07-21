@@ -29,6 +29,19 @@ const RENDER_COMPONENTS: Record<string, (props: DrillDownProps) => JSX.Element> 
 
 const WATCHED = ["BTC-USD", "ETH-USD", "SOL-USD"];
 
+function hasVisibleRenderOutputAfterLatestUser(messages: any[]) {
+  const latestUserIndex = [...messages].map((message) => message.role).lastIndexOf("user");
+  if (latestUserIndex < 0) return false;
+  return messages.slice(latestUserIndex + 1).some((message) =>
+    message.role === "assistant" &&
+    message.parts?.some((part: any) =>
+      typeof part.type === "string" &&
+      part.type.startsWith("tool-render_") &&
+      part.state === "output-available"
+    )
+  );
+}
+
 function formatTickerPrice(price?: number) {
   if (price === undefined || !Number.isFinite(price)) return "—";
   return price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -62,7 +75,9 @@ export function Chat() {
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses,
   });
 
-  const busy = status === "submitted" || status === "streaming";
+  const streamBusy = status === "submitted" || status === "streaming";
+  const currentTurnHasVisibleRender = useMemo(() => hasVisibleRenderOutputAfterLatestUser(messages), [messages]);
+  const composerBusy = streamBusy && !currentTurnHasVisibleRender;
 
   useEffect(() => {
     const nextMoves: Record<string, "up" | "down" | "flat"> = {};
@@ -111,14 +126,14 @@ export function Chat() {
   };
 
   const submit = () => {
-    if (!input.trim() || busy) return;
+    if (!input.trim() || composerBusy) return;
     sendMessage({ text: input });
     setInput("");
   };
 
   const sendScopedMessage = (text: string) => {
     const message = text.trim();
-    if (!message || busy) return;
+    if (!message || composerBusy) return;
     sendMessage({ text: message });
   };
 
@@ -269,8 +284,8 @@ export function Chat() {
           onKeyDown={(e) => e.key === "Enter" && submit()}
           placeholder="query the tape — e.g. show me ETH over the last hour"
         />
-        <button type="button" onClick={submit} disabled={busy}>
-          {busy ? "Reading…" : "Send"}
+        <button type="button" onClick={submit} disabled={composerBusy}>
+          {composerBusy ? "Reading…" : "Send"}
         </button>
       </div>
     </section>
