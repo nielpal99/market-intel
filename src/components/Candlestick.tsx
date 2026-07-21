@@ -149,6 +149,11 @@ function CandlestickChart({ data, onDrillDown }: { data: any; onDrillDown?: (mes
         )}
         {drillPending && <div aria-hidden="true" className="drill-ack" />}
       </div>
+      {data?.queryStats && (
+        <p className="readout-caption mono" style={{ color: "var(--mute)" }}>
+          scanned {Number(data.queryStats.readRows).toLocaleString()} rows · {data.queryStats.resultRows} returned · {data.queryStats.elapsedMs}ms
+        </p>
+      )}
       {data?.input?.caption && <p className="readout-caption">{data.input.caption}</p>}
     </div>
   );

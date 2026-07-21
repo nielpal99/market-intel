@@ -203,6 +203,11 @@ function CorrelationNetworkGraph({ data }: { data: any }) {
           {correlations.map((edge: any) => `${edge.source}/${edge.target}: ${Number(edge.correlation).toFixed(3)} (${edge.samples} samples)`).join("  ")}
         </div>
       )}
+      {data?.queryStats && (
+        <p className="readout-caption mono" style={{ color: "var(--mute)" }}>
+          scanned {Number(data.queryStats.readRows).toLocaleString()} rows · {data.queryStats.resultRows} returned · {data.queryStats.elapsedMs}ms
+        </p>
+      )}
       {data?.input?.caption && <p className="readout-caption">{data.input.caption}</p>}
     </div>
   );

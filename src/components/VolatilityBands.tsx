@@ -58,6 +58,11 @@ export function VolatilityBands({ data }: { data: any }) {
         <span style={{ color: "var(--ink)" }}>{last.toFixed(2)}</span>
         <span>mean ± 2σ · {period}m window</span>
       </div>
+      {data?.queryStats && (
+        <p className="readout-caption mono" style={{ color: "var(--mute)" }}>
+          scanned {Number(data.queryStats.readRows).toLocaleString()} rows · {data.queryStats.resultRows} returned · {data.queryStats.elapsedMs}ms
+        </p>
+      )}
       {data?.input?.caption && <p className="readout-caption">{data.input.caption}</p>}
     </div>
   );

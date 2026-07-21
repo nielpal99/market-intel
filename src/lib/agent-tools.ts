@@ -2,7 +2,7 @@ import { tool } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
-import { chQuery } from "@/lib/clickhouse";
+import { chQuery, chQueryWithStats } from "@/lib/clickhouse";
 import { db } from "@/lib/postgres";
 import { savedInvestigations, alertSubscriptions, hitlApprovals } from "@/lib/schema";
 
@@ -60,6 +60,46 @@ async function fetchTradesAround(symbol: string, at: string, seconds: number) {
      ORDER BY timestamp, exchange
      LIMIT 300`,
     { symbol, at: toChDateTime(at), seconds }
+  );
+}
+
+async function fetchPriceSeriesWithStats(symbol: string, window_start: string, window_end: string) {
+  return chQueryWithStats(
+    `SELECT minute,
+      argMinMerge(open) AS open,
+      maxMerge(high) AS high,
+      minMerge(low) AS low,
+      argMaxMerge(close) AS close,
+      sumMerge(volume) AS volume
+     FROM ohlc_1m_mv
+     WHERE symbol = {symbol:String}
+       AND minute >= {window_start:DateTime64(3)}
+       AND minute <= {window_end:DateTime64(3)}
+     GROUP BY minute
+     ORDER BY minute`,
+    { symbol, window_start: toChDateTime(window_start), window_end: toChDateTime(window_end) }
+  );
+}
+
+async function fetchSpreadSeriesWithStats(symbol: string, minutes: number) {
+  return chQueryWithStats(
+    `SELECT * FROM cross_exchange_spread
+     WHERE symbol = {symbol:String}
+       AND timestamp > now() - INTERVAL {minutes:UInt16} MINUTE
+     ORDER BY timestamp`,
+    { symbol, minutes }
+  );
+}
+
+async function fetchCorrelationsWithStats(symbols: string[], minutes: number) {
+  return chQueryWithStats<CorrelationRow>(
+    `SELECT symbol, minute, argMaxMerge(close) AS close
+     FROM ohlc_1m_mv
+     WHERE symbol IN ({symbols:Array(String)})
+       AND minute > now() - INTERVAL {minutes:UInt16} MINUTE
+     GROUP BY symbol, minute
+     ORDER BY symbol, minute`,
+    { symbols, minutes }
   );
 }
 
@@ -302,7 +342,7 @@ export function buildMarketIntelTools(chatId: string, userId: string = DEMO_USER
       caption: z.string().max(160),
     }),
     execute: async (input) => {
-      const ohlc = await fetchPriceSeries(input.symbol, input.window_start, input.window_end);
+      const { rows: ohlc, queryStats } = await fetchPriceSeriesWithStats(input.symbol, input.window_start, input.window_end);
       if (ohlc.length === 0) {
         return noDataVerdict(
           `No OHLC data is available for ${input.symbol} in the requested window.`,
@@ -313,7 +353,7 @@ export function buildMarketIntelTools(chatId: string, userId: string = DEMO_USER
           ]
         );
       }
-      return { input, ohlc };
+      return { input, ohlc, queryStats };
     },
   });
 
@@ -325,7 +365,7 @@ export function buildMarketIntelTools(chatId: string, userId: string = DEMO_USER
       caption: z.string().max(160),
     }),
     execute: async (input) => {
-      const rows = await fetchSpreadSeries(input.symbol, input.minutes);
+      const { rows, queryStats } = await fetchSpreadSeriesWithStats(input.symbol, input.minutes);
       if (rows.length === 0) {
         return noDataVerdict(
           `No cross-exchange spread data is available for ${input.symbol} in the requested window.`,
@@ -336,7 +376,7 @@ export function buildMarketIntelTools(chatId: string, userId: string = DEMO_USER
           ]
         );
       }
-      return { input, rows };
+      return { input, rows, queryStats };
     },
   });
 
@@ -349,8 +389,8 @@ export function buildMarketIntelTools(chatId: string, userId: string = DEMO_USER
       caption: z.string().max(160),
     }),
     execute: async (input) => {
-      const ohlc = await fetchPriceSeries(input.symbol, input.window_start, input.window_end);
-      return { input, ohlc };
+      const { rows: ohlc, queryStats } = await fetchPriceSeriesWithStats(input.symbol, input.window_start, input.window_end);
+      return { input, ohlc, queryStats };
     },
   });
 
@@ -364,7 +404,7 @@ export function buildMarketIntelTools(chatId: string, userId: string = DEMO_USER
     execute: async (input) => {
       const lookbackMinutes = Math.min(Math.max(Math.round(input.hours * 60), 60), 1440);
       const rollingSamples = 60;
-      const rows = await fetchCorrelations(input.symbols, lookbackMinutes) as CorrelationRow[];
+      const { rows, queryStats } = await fetchCorrelationsWithStats(input.symbols, lookbackMinutes);
       if (rows.length === 0) {
         return noDataVerdict(
           `No close series are available for ${input.symbols.join(", ")} in the requested window.`,
@@ -375,7 +415,7 @@ export function buildMarketIntelTools(chatId: string, userId: string = DEMO_USER
           ]
         );
       }
-      return { input: { ...input, lookbackMinutes, rollingSamples }, ...computeCorrelationNetwork(rows, input.symbols, rollingSamples) };
+      return { input: { ...input, lookbackMinutes, rollingSamples }, ...computeCorrelationNetwork(rows, input.symbols, rollingSamples), queryStats };
     },
   });
 

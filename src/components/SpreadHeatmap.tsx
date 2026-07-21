@@ -71,6 +71,11 @@ function SpreadHeatmapGrid({ data, onDrillDown }: { data: any; onDrillDown?: (me
           );
         })}
       </div>
+      {data?.queryStats && (
+        <p className="readout-caption mono" style={{ color: "var(--mute)" }}>
+          scanned {Number(data.queryStats.readRows).toLocaleString()} rows · {data.queryStats.resultRows} returned · {data.queryStats.elapsedMs}ms
+        </p>
+      )}
       {data?.input?.caption && <p className="readout-caption">{data.input.caption}</p>}
     </div>
   );
