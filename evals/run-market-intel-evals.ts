@@ -2,6 +2,7 @@ import "dotenv/config";
 
 import { mkdir, writeFile } from "node:fs/promises";
 import { anthropic } from "@ai-sdk/anthropic";
+import { openai } from "@ai-sdk/openai";
 import { streamText, stepCountIs, tool, type ToolSet } from "ai";
 import * as braintrust from "braintrust";
 import { z } from "zod";
@@ -73,8 +74,8 @@ function parseArgs() {
 }
 
 function modelFor(name: ModelName) {
-  if (name === "claude") return anthropic("claude-sonnet-4-5");
-  return anthropic("claude-sonnet-4-5");
+  if (name === "claude") return anthropic("claude-sonnet-5");
+  return openai("gpt-5.5");
 }
 
 function sampleRows(name: string, evalCase: MarketIntelEvalCase) {
@@ -417,7 +418,11 @@ async function main() {
   const allResults: TrialOutput[] = [];
 
   if (args.mode === "all" || args.mode === "terra-core") {
-    allResults.push(...(await runBatch("terra", "core", coreDataset, args.terraTrials)));
+    if (process.env.OPENAI_API_KEY) {
+      allResults.push(...(await runBatch("terra", "core", coreDataset, args.terraTrials)));
+    } else {
+      console.warn("Skipping terra-core: OPENAI_API_KEY is not set.");
+    }
   }
   if (args.mode === "all" || args.mode === "claude-core") {
     if (process.env.ANTHROPIC_API_KEY) {
@@ -427,13 +432,17 @@ async function main() {
     }
   }
   if (args.mode === "all" || args.mode === "terra-adversarial") {
-    allResults.push(...(await runBatch("terra", "adversarial", adversarialDataset, 1)));
+    if (process.env.OPENAI_API_KEY) {
+      allResults.push(...(await runBatch("terra", "adversarial", adversarialDataset, 1)));
+    } else {
+      console.warn("Skipping terra-adversarial: OPENAI_API_KEY is not set.");
+    }
   }
 
   const summaries = [
-    summarize("terra", "core", args.terraTrials, coreDataset, allResults),
+    summarize("terra", "core", process.env.OPENAI_API_KEY ? args.terraTrials : 0, coreDataset, allResults),
     summarize("claude", "core", process.env.ANTHROPIC_API_KEY ? 1 : 0, coreDataset, allResults),
-    summarize("terra", "adversarial", 1, adversarialDataset, allResults),
+    summarize("terra", "adversarial", process.env.OPENAI_API_KEY ? 1 : 0, adversarialDataset, allResults),
   ].filter((summary) => summary.total > 0 || summary.model === "claude");
 
   const report: RunSummary & { results: TrialOutput[] } = {

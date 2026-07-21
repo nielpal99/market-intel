@@ -16,7 +16,7 @@ The reactive path (ask a question, get a widget) exists too, and every widget is
 
 ## Architecture
 
-- **`chat.agent("market-intel")`** — [Trigger.dev v4.5+](https://trigger.dev/), the required orchestration primitive. A durable, long-running chat task built on Vercel AI SDK's `streamText`, currently running on **Claude Sonnet 5** via `@ai-sdk/anthropic` (see [Model note](#model-note) below).
+- **`chat.agent("market-intel")`** — [Trigger.dev v4.5+](https://trigger.dev/), the required orchestration primitive. A durable, long-running chat task built on Vercel AI SDK's `streamText`, currently running on **GPT-5.5** via `@ai-sdk/openai` (see [Model note](#model-note) below).
 - **ClickHouse Cloud** — primary analytics database. Tick-level trade and order-book data ingested continuously from Coinbase Exchange and Kraken's public WebSocket feeds, aggregated via materialized views for fast agent recall.
 - **Neon (Postgres)** — OLTP layer: users, watchlists, saved investigations, alert subscriptions, human-in-the-loop approvals.
 - **Long-running Trigger.dev tasks** — persistent WebSocket ingestion, a heartbeat-driven watchdog, continuous anomaly detection, and event fanout to the OLTP layer.
@@ -60,9 +60,9 @@ We're explicit about what this metric is and isn't: it reflects real, small, tim
 
 ## Model note
 
-The system prompt and tool-selection contract were originally designed and validated against Claude. Mid-build testing against OpenAI models surfaced a real, worth-documenting finding: some models, after completing a `render_*` call, would occasionally take an additional turn and emit the tool's raw JSON output as narrated text — a two-turn behavior the original single-clause system prompt ("no prose *between* tool calls") didn't explicitly forbid.
+The system prompt and tool-selection contract were originally designed against Claude-style tool behavior, then hardened during GPT-5.5 evaluation. Mid-build testing surfaced a real, worth-documenting finding: after completing a `render_*` call, the model could occasionally take an additional turn and emit the tool's raw JSON output as narrated text — a two-turn behavior the original single-clause system prompt ("no prose *between* tool calls") didn't explicitly forbid.
 
-The fix is provider-agnostic and remains in the app now that the runtime is back on Claude Sonnet: an explicit "output nothing after a render call" instruction, a structural stream-control guard that stops after the first render tool and forces render continuation after non-render tools, context compaction for older tool payloads, and a UI filter that suppresses any text part following a completed render result.
+The fix is provider-agnostic and remains in the GPT-5.5 runtime: an explicit "output nothing after a render call" instruction, a structural stream-control guard that stops after the first render tool and forces render continuation after non-render tools, context compaction for older tool payloads, and a UI filter that suppresses any text part following a completed render result.
 
 ---
 
@@ -74,11 +74,11 @@ The schema includes an `eval_runs` Postgres table for runtime/OLTP audit evidenc
 
 ## Running it
 
-Requires accounts (free tiers work): [Trigger.dev](https://trigger.dev/), [ClickHouse Cloud](https://clickhouse.com/cloud), [Neon](https://neon.tech/), and an Anthropic API key.
+Requires accounts (free tiers work): [Trigger.dev](https://trigger.dev/), [ClickHouse Cloud](https://clickhouse.com/cloud), [Neon](https://neon.tech/), and an OpenAI API key.
 
 ```bash
 npm install
-cp .env.example .env   # fill in TRIGGER_*, CLICKHOUSE_*, POSTGRES_URL, ANTHROPIC_API_KEY
+cp .env.example .env   # fill in TRIGGER_*, CLICKHOUSE_*, POSTGRES_URL, OPENAI_API_KEY
 ```
 
 Apply schemas: `db/clickhouse_schema.sql` in ClickHouse's SQL console, `db/postgres_schema.sql` against Neon.
