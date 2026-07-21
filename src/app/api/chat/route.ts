@@ -1,5 +1,5 @@
 import { chat } from "@trigger.dev/sdk/chat-server";
-import { streamText } from "ai";
+import { streamText, stepCountIs } from "ai";
 import { systemPrompt, model, buildMarketIntelTools } from "@/lib/agent-tools";
 
 // Warm first-turn handler: streams step 1 from this route while the
@@ -12,5 +12,6 @@ export const POST = chat.headStart({
       ...helper.toStreamTextOptions({ tools: buildMarketIntelTools(helper.session.chatId) }),
       model,
       system: systemPrompt(),
+      stopWhen: stepCountIs(15),
     }),
 });
