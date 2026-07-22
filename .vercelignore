@@ -1,0 +1,10 @@
+.tools
+node_modules
+.next
+.trigger
+.claude
+.env
+.env.local
+tsconfig.tsbuildinfo
+evals/results
+*.log
