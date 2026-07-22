@@ -2,6 +2,9 @@ import { chat } from "@trigger.dev/sdk/chat-server";
 import { streamText } from "ai";
 import { systemPrompt, model, buildMarketIntelTools, marketIntelStreamControls, compactMarketIntelMessages } from "@/lib/agent-tools";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 // Warm first-turn handler: streams step 1 from this route while the
 // agent run boots, then hands over. Paired with the browser transport's
 // `headStart: "/api/chat"` option.
