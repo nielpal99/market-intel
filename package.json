@@ -11,7 +11,8 @@
     "eval:braintrust": "tsx evals/run-market-intel-evals.ts",
     "eval:stream-controls": "tsx evals/check-stream-controls.ts",
     "demo:hitl": "tsx scripts/seed-demo-hitl.ts",
-    "trigger:dev": "npx trigger.dev@4.5.4 dev",
+    "trigger:kickoff": "tsx scripts/kickoff-ingestion.ts",
+    "trigger:dev": "npx trigger.dev@4.5.4 dev start --max-concurrent-runs 4",
     "trigger:deploy": "npx trigger.dev@4.5.4 deploy"
   },
   "dependencies": {

@@ -7,7 +7,7 @@ import { db } from "@/lib/postgres";
 import { savedInvestigations, alertSubscriptions, hitlApprovals } from "@/lib/schema";
 
 // Single source of truth for the agent's model.
-export const model = openai("gpt-5.5");
+export const model = openai("gpt-5.6-terra");
 
 // Identity comes from the server session, never from the LLM. This demo user
 // is seeded by db/postgres_schema.sql; a real app would resolve it from auth.

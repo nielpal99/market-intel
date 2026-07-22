@@ -1,4 +1,4 @@
-import { task, schedules, timeout } from "@trigger.dev/sdk/v3";
+import { task, schedules, timeout, runs } from "@trigger.dev/sdk/v3";
 import { and, eq, lte } from "drizzle-orm";
 import { clickhouse, chQuery } from "@/lib/clickhouse";
 import { db } from "@/lib/postgres";
@@ -19,6 +19,7 @@ const COINBASE_WS = "wss://ws-feed.exchange.coinbase.com";
 const KRAKEN_WS = "wss://ws.kraken.com";
 
 const HEARTBEAT_STALE_SECONDS = 120;
+const ACTIVE_RUN_STATUSES = ["PENDING_VERSION", "QUEUED", "DEQUEUED", "EXECUTING", "WAITING", "DELAYED"] as const;
 
 function nowDateTime64(): string {
   return new Date().toISOString().slice(0, 23).replace("T", " ");
@@ -31,6 +32,20 @@ async function flush<T extends TradeRow | BookRow>(taskId: string, exchange: str
     values: [{ task: taskId, exchange, flushed_rows: rows.length, flushed_at: nowDateTime64() }],
     format: "JSONEachRow",
   });
+}
+
+async function cancelActiveRuns(taskId: string) {
+  const page = await runs.list({
+    taskIdentifier: taskId,
+    status: [...ACTIVE_RUN_STATUSES],
+    period: "1d",
+  });
+  const cancelled: string[] = [];
+  for (const run of page.data) {
+    await runs.cancel(run.id);
+    cancelled.push(run.id);
+  }
+  return cancelled;
 }
 
 export const ingestTradesWs = task({
@@ -119,8 +134,10 @@ export const ingestionWatchdog = schedules.task({
         runId: undefined as string | undefined,
       };
       if (stale) {
+        const cancelled = await cancelActiveRuns(id);
         const run = await handle.trigger({});
         status.runId = run.id;
+        if (cancelled.length > 0) status.runId = `${run.id} after cancelling ${cancelled.length}`;
         restarted.push(id);
       }
       taskStatuses.push(status);
