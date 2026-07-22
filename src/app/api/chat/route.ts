@@ -1,6 +1,7 @@
 import { chat } from "@trigger.dev/sdk/chat-server";
 import { streamText } from "ai";
 import { systemPrompt, model, buildMarketIntelTools, marketIntelStreamControls, compactMarketIntelMessages } from "@/lib/agent-tools";
+import { triggerApiClient } from "@/lib/trigger-api-client";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -10,6 +11,7 @@ export const dynamic = "force-dynamic";
 // `headStart: "/api/chat"` option.
 export const POST = chat.headStart({
   agentId: "market-intel",
+  apiClient: triggerApiClient(),
   run: async ({ chat: helper }) => {
     const streamOptions = helper.toStreamTextOptions({ tools: buildMarketIntelTools(helper.session.chatId) });
     return streamText({
