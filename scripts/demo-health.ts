@@ -11,6 +11,7 @@ type Check = {
 
 const APP_URL = process.env.DEMO_APP_URL ?? "https://market-intel-mu.vercel.app";
 const MAX_HEARTBEAT_AGE_SECONDS = 45;
+const SPREAD_HEALTH_MINUTES = 10;
 
 function printCheck(check: Check) {
   const marker = check.ok ? "OK " : "BAD";
@@ -130,7 +131,7 @@ async function spreadHealth(): Promise<Check> {
         round(avg(time_delta_ms), 1) AS avg_delta_ms,
         max(time_delta_ms) AS max_delta_ms
      FROM cross_exchange_spread
-     WHERE timestamp > now() - INTERVAL 30 MINUTE
+     WHERE timestamp > now() - INTERVAL ${SPREAD_HEALTH_MINUTES} MINUTE
      GROUP BY symbol
      ORDER BY symbol`
   );
@@ -141,7 +142,7 @@ async function spreadHealth(): Promise<Check> {
   return {
     name: "cross_exchange_spread view",
     ok: total > 0 && rows.every((row) => row.max_delta_ms <= 250),
-    detail: detail || "no matched spread rows in last 30m",
+    detail: detail || `no matched spread rows in last ${SPREAD_HEALTH_MINUTES}m`,
   };
 }
 
@@ -178,15 +179,28 @@ async function triggerRunHealth(): Promise<Check> {
 }
 
 async function main() {
-  const checks = await Promise.all([
-    appHealth(),
-    ingestionStart(),
-    heartbeatHealth(),
-    tableHealth("trades"),
-    tableHealth("book_snapshots"),
-    spreadHealth(),
-    triggerRunHealth(),
-  ]);
+  const checkFns: Array<[string, () => Promise<Check>]> = [
+    ["Vercel throughput API", appHealth],
+    ["Real ingestion start", ingestionStart],
+    ["Trigger ingestion heartbeats", heartbeatHealth],
+    ["trades live rows", () => tableHealth("trades")],
+    ["book_snapshots live rows", () => tableHealth("book_snapshots")],
+    ["cross_exchange_spread view", spreadHealth],
+    ["Trigger prod run status", triggerRunHealth],
+  ];
+  const checks = await Promise.all(
+    checkFns.map(async ([name, fn]) => {
+      try {
+        return await fn();
+      } catch (error) {
+        return {
+          name,
+          ok: false,
+          detail: error instanceof Error ? error.message : String(error),
+        };
+      }
+    })
+  );
   summarizeChecks(checks);
 }
 

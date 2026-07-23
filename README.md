@@ -112,7 +112,7 @@ We'd rather say this plainly than have it discovered:
 - Market data is **real, live, public exchange data** — not synthetic or scripted. This was a deliberate choice over a fabricated-incident demo.
 - The correlation network computes **real rolling Pearson correlation** from live `ohlc_1m_mv` data — not decorative lines between nodes (an earlier iteration was; caught in review, fixed).
 - `set_alert`'s human-in-the-loop approval **genuinely gates** subscription creation via AI SDK's `needsApproval` — it doesn't fake a pending state.
-- Ingestion has been running continuously since `2026-07-20 07:21:39.061 UTC`, not restarted for demo purposes.
+- The earliest retained live ingestion heartbeat is `2026-07-20 17:09:49.681 UTC`; `ingest_heartbeats` has a 3-day TTL, so this is the oldest currently retained proof row, not a synthetic start marker.
 
 ---
 
