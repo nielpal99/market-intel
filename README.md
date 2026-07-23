@@ -95,10 +95,13 @@ Data starts flowing within seconds; give it a minute or two before asking about 
 For a deterministic proactive-card demo beat, run:
 
 ```bash
+npm run demo:health # verifies live Trigger + ClickHouse + deployed app state
 npm run demo:hitl
 ```
 
 That inserts one run-less pending `hitl_approvals` notification for the seeded demo user. The normal in-session `set_alert` path still uses AI SDK `needsApproval` and must be resolved through the chat approval UI.
+
+For the final recording checklist, see [docs/SUBMISSION_RUNBOOK.md](docs/SUBMISSION_RUNBOOK.md).
 
 ---
 
@@ -109,7 +112,7 @@ We'd rather say this plainly than have it discovered:
 - Market data is **real, live, public exchange data** — not synthetic or scripted. This was a deliberate choice over a fabricated-incident demo.
 - The correlation network computes **real rolling Pearson correlation** from live `ohlc_1m_mv` data — not decorative lines between nodes (an earlier iteration was; caught in review, fixed).
 - `set_alert`'s human-in-the-loop approval **genuinely gates** subscription creation via AI SDK's `needsApproval` — it doesn't fake a pending state.
-- Ingestion has been running continuously since `2026-07-19 21:57:51.672 UTC`, not restarted for demo purposes.
+- Ingestion has been running continuously since `2026-07-20 07:21:39.061 UTC`, not restarted for demo purposes.
 
 ---
 

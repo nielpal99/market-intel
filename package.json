@@ -10,6 +10,7 @@
     "lint": "next lint",
     "eval:braintrust": "tsx evals/run-market-intel-evals.ts",
     "eval:stream-controls": "tsx evals/check-stream-controls.ts",
+    "demo:health": "tsx scripts/demo-health.ts",
     "demo:hitl": "tsx scripts/seed-demo-hitl.ts",
     "trigger:kickoff": "tsx scripts/kickoff-ingestion.ts",
     "trigger:dev": "npx trigger.dev@4.5.4 dev start --max-concurrent-runs 4",
