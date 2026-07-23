@@ -95,6 +95,21 @@ body {
 .beacon .label { font-family: var(--font-signage); text-transform: uppercase; letter-spacing: 0.16em; }
 .beacon.on .label { color: var(--ice); }
 .beacon.off .label { color: var(--mute); }
+.pipeline-proof {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--ice-dim);
+  white-space: nowrap;
+}
+.pipeline-proof span {
+  border: 1px solid rgba(116, 199, 214, 0.18);
+  border-radius: 3px;
+  padding: 3px 5px;
+  background: rgba(116, 199, 214, 0.04);
+}
 
 /* ── Stage: rail + feed ── */
 .stage {
@@ -313,6 +328,7 @@ body {
   .watched { gap: 8px; }
   .watched .ticker { grid-template-columns: auto; gap: 1px; }
   .ticker-price { font-size: 10px; }
+  .pipeline-proof { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {

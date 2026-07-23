@@ -47,6 +47,25 @@ function formatTickerPrice(price?: number) {
   return price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
+function formatAge(seconds: number | null) {
+  if (seconds === null || !Number.isFinite(seconds)) return "—";
+  if (seconds < 60) return `${seconds}s`;
+  return `${Math.floor(seconds / 60)}m`;
+}
+
+function humanizeAlertType(value?: unknown) {
+  const text = String(value ?? "market event").replace(/_/g, " ");
+  return text === "spread anomaly" ? "spread alert" : text;
+}
+
+function formatAlertConfirmation(input: any) {
+  const symbol = input?.symbol ?? "this symbol";
+  const eventType = humanizeAlertType(input?.event_type);
+  const threshold = input?.min_severity;
+  const thresholdText = typeof threshold === "number" ? ` Threshold ${threshold.toLocaleString(undefined, { maximumFractionDigits: 2 })}.` : "";
+  return `Create a persistent ${symbol} ${eventType}.${thresholdText}`;
+}
+
 export function Chat() {
   const [chatId] = useState(() => crypto.randomUUID());
   const [input, setInput] = useState("");
@@ -157,6 +176,10 @@ export function Chat() {
           <span className="dot" />
           <span className="label">{throughput.live ? "Live feed" : "Feed idle"}</span>
         </div>
+        <div className="pipeline-proof" title="Live ClickHouse ingest heartbeats written by Trigger.dev tasks">
+          <span>CH {throughput.rowsLastMinute.toLocaleString()}/min</span>
+          <span>Trigger hb {formatAge(throughput.ageSeconds)}</span>
+        </div>
       </header>
 
       <div className="stage">
@@ -236,8 +259,7 @@ export function Chat() {
                         <div key={i} className="approval">
                           <div className="approval-head">Confirm · set alert</div>
                           <p className="prose" style={{ marginBottom: 12 }}>
-                            Watch {part.input?.symbol} for {part.input?.event_type} at severity ≥{" "}
-                            {part.input?.min_severity}?
+                            {formatAlertConfirmation(part.input)}
                           </p>
                           <div className="signal-actions">
                             <button
