@@ -125,13 +125,28 @@ async function tableHealth(table: "trades" | "book_snapshots"): Promise<Check> {
 
 async function spreadHealth(): Promise<Check> {
   const rows = await chQuery<{ symbol: string; rows: number; avg_delta_ms: number; max_delta_ms: number }>(
-    `SELECT
-        symbol,
-        toUInt32(count()) AS rows,
-        round(avg(time_delta_ms), 1) AS avg_delta_ms,
-        max(time_delta_ms) AS max_delta_ms
-     FROM cross_exchange_spread
-     WHERE timestamp > now() - INTERVAL ${SPREAD_HEALTH_MINUTES} MINUTE
+    `WITH matched AS (
+       SELECT
+         a.symbol AS symbol,
+         abs(dateDiff('millisecond', a.timestamp, b.timestamp)) AS time_delta_ms
+       FROM
+         (SELECT *
+          FROM book_snapshots
+          WHERE timestamp > now() - INTERVAL ${SPREAD_HEALTH_MINUTES} MINUTE) a
+       INNER JOIN
+         (SELECT *
+          FROM book_snapshots
+          WHERE timestamp > now() - INTERVAL ${SPREAD_HEALTH_MINUTES} MINUTE) b
+       ON a.symbol = b.symbol
+        AND a.exchange != b.exchange
+        AND abs(dateDiff('millisecond', a.timestamp, b.timestamp)) <= 250
+     )
+     SELECT
+       symbol,
+       toUInt32(count()) AS rows,
+       round(avg(time_delta_ms), 1) AS avg_delta_ms,
+       max(time_delta_ms) AS max_delta_ms
+     FROM matched
      GROUP BY symbol
      ORDER BY symbol`
   );
@@ -140,7 +155,7 @@ async function spreadHealth(): Promise<Check> {
     .map((row) => `${row.symbol} rows=${row.rows} avgDelta=${row.avg_delta_ms}ms maxDelta=${row.max_delta_ms}ms`)
     .join("; ");
   return {
-    name: "cross_exchange_spread view",
+    name: "bounded spread join",
     ok: total > 0 && rows.every((row) => row.max_delta_ms <= 250),
     detail: detail || `no matched spread rows in last ${SPREAD_HEALTH_MINUTES}m`,
   };
